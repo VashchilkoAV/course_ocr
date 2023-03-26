@@ -92,7 +92,7 @@ def train_epochs(model, train_loader, test_loader, train_args, criterion, device
                 'train': {
                     'loss': np.mean(train_loss),
                 },
-                'lr': scheduler.get_last_lr(),
+                'lr': scheduler.get_last_lr()[0],
             }, step=epoch+1)
 
     return train_losses, test_losses
@@ -131,9 +131,7 @@ from torchvision.transforms import functional as F
 DEFAULT_IMAGE_SIZE = (256, 256)
 
 
-def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=20, device=None):
-    train_loss = []
-
+def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=20, device=None, wandb_instance=None):
     if device is not None:
         net.to(device)
     optimizer = optim.Adam(net.parameters(), lr=lr)
@@ -142,6 +140,9 @@ def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=2
         dataset, batch_size=batch_size, shuffle=True, num_workers=2
     )
     stats_step = (len(dataset) // 10 // batch_size) + 1
+
+    step = 0
+
     for epoch in range(epochs):
         if epoch == 0:
             # на первой эпохе учимся с малым lr, чтобы не сломать pretrain
@@ -167,9 +168,18 @@ def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=2
             if (i % stats_step == 0):
                 print(f"epoch {epoch}|{i}; total loss:{running_loss / stats_step}")
                 print(f"last losse: {loss}")
+
+                if wandb_instance is not None:
+                    wandb_instance.log({
+                        'train': {
+                            'loss': running_loss / stats_step,
+                            'lr': optimizer.param_groups[0]['lr']
+                        },
+                    }, step=step)
+                step += 1
+
                 running_loss = 0.0
             loss.backward()
             optimizer.step()
-            train_loss.append(running_loss / stats_step)
     print('Finished Training')
-    return net, train_loss
+    return net
