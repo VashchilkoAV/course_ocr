@@ -1,0 +1,456 @@
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3190.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+initial loss 0.11798489093780518
+epoch 0 started
+train loss: 0.11378882543344628, test_loss: 0.062713623046875
+epoch 1 started
+train loss: 0.0510371891134474, test_loss: 0.052372951060533524
+epoch 2 started
+train loss: 0.04165005045381674, test_loss: 0.020432356745004654
+epoch 3 started
+train loss: 0.03158309994268209, test_loss: 0.016394417732954025
+epoch 4 started
+train loss: 0.027990504541992863, test_loss: 0.019451584666967392
+epoch 5 started
+train loss: 0.034902603600563624, test_loss: 0.01999414525926113
+epoch 6 started
+train loss: 0.029374893404262064, test_loss: 0.015446779318153858
+epoch 7 started
+train loss: 0.02697539211970122, test_loss: 0.014563276432454586
+epoch 8 started
+train loss: 0.03471335854694536, test_loss: 0.025932764634490013
+epoch 9 started
+train loss: 0.03254344650468695, test_loss: 0.015359996818006039
+epoch 10 started
+train loss: 0.03360020659203569, test_loss: 0.015497403219342232
+epoch 11 started
+train loss: 0.02666540662886248, test_loss: 0.014519371092319489
+epoch 12 started
+train loss: 0.028583749549441217, test_loss: 0.015144014731049538
+epoch 13 started
+train loss: 0.027028566310729644, test_loss: 0.016727464273571968
+epoch 14 started
+train loss: 0.03144624691153045, test_loss: 0.014515802264213562
+epoch 15 started
+train loss: 0.02629239723665662, test_loss: 0.014534126035869122
+epoch 16 started
+train loss: 0.026245226434444442, test_loss: 0.014378183521330357
+epoch 17 started
+train loss: 0.02618403243018076, test_loss: 0.014383498579263687
+epoch 18 started
+train loss: 0.02616055228784154, test_loss: 0.014369269832968712
+epoch 19 started
+train loss: 0.026110460971159183, test_loss: 0.014302637428045273
+epoch 20 started
+train loss: 0.026070895790499413, test_loss: 0.014322063885629177
+epoch 21 started
+train loss: 0.026018069900428167, test_loss: 0.01430792547762394
+epoch 22 started
+train loss: 0.025954200369077234, test_loss: 0.014132139272987843
+epoch 23 started
+train loss: 0.0257672066616665, test_loss: 0.014040878973901272
+epoch 24 started
+train loss: 0.025721971064957046, test_loss: 0.01408260315656662
+epoch 25 started
+train loss: 0.025737377301647074, test_loss: 0.014028459787368774
+epoch 26 started
+train loss: 0.025630839132645633, test_loss: 0.013789626769721508
+epoch 27 started
+train loss: 0.02544078556838074, test_loss: 0.013665415346622467
+epoch 28 started
+train loss: 0.025443050252458004, test_loss: 0.013688607141375542
+epoch 29 started
+train loss: 0.025350548643473303, test_loss: 0.013560830615460873
+epoch 30 started
+train loss: 0.02525054007942561, test_loss: 0.013543599285185337
+epoch 31 started
+train loss: 0.025227426618498396, test_loss: 0.013528941199183464
+epoch 32 started
+train loss: 0.02523179404756991, test_loss: 0.013537460006773472
+epoch 33 started
+train loss: 0.025200580670224598, test_loss: 0.013553842902183533
+epoch 34 started
+train loss: 0.02520819476436979, test_loss: 0.013530773110687733
+epoch 35 started
+train loss: 0.025177903366749802, test_loss: 0.013512440025806427
+epoch 36 started
+train loss: 0.025179956642681474, test_loss: 0.013517850078642368
+epoch 37 started
+train loss: 0.025172687992467434, test_loss: 0.013524484820663929
+epoch 38 started
+train loss: 0.02517480815645069, test_loss: 0.013525035232305527
+epoch 39 started
+train loss: 0.025154164343499968, test_loss: 0.01352145615965128
+epoch 40 started
+train loss: 0.025168732375580777, test_loss: 0.013511022552847862
+epoch 41 started
+train loss: 0.0251640549524295, test_loss: 0.013482136651873589
+epoch 42 started
+train loss: 0.025139956166423786, test_loss: 0.013503080233931541
+epoch 43 started
+train loss: 0.025169818775230807, test_loss: 0.013517750427126884
+epoch 44 started
+train loss: 0.025131307135043676, test_loss: 0.013516739010810852
+epoch 45 started
+train loss: 0.025123224130809484, test_loss: 0.013519417494535446
+epoch 46 started
+train loss: 0.025136248989015474, test_loss: 0.013493143022060394
+epoch 47 started
+train loss: 0.025118464426971816, test_loss: 0.013514374382793903
+epoch 48 started
+train loss: 0.025132943215534657, test_loss: 0.01353555265814066
+epoch 49 started
+train loss: 0.02510917901781795, test_loss: 0.013501303270459175
+epoch 50 started
+train loss: 0.02512186094723542, test_loss: 0.013498848304152489
+epoch 51 started
+train loss: 0.025131149696660162, test_loss: 0.013498973101377487
+epoch 52 started
+train loss: 0.0251381042232554, test_loss: 0.013485346920788288
+epoch 53 started
+train loss: 0.02513860538497933, test_loss: 0.01350061222910881
+epoch 54 started
+train loss: 0.025139431559398958, test_loss: 0.01347933616489172
+epoch 55 started
+train loss: 0.025114913362596695, test_loss: 0.013488322496414185
+epoch 56 started
+train loss: 0.025116536293440038, test_loss: 0.013500142842531204
+epoch 57 started
+train loss: 0.025136220490042303, test_loss: 0.013508545234799385
+epoch 58 started
+train loss: 0.025112318694785547, test_loss: 0.013505415059626102
+epoch 59 started
+train loss: 0.025102781154471034, test_loss: 0.013481865637004375
+epoch 60 started
+train loss: 0.025120437890499097, test_loss: 0.01348191499710083
+epoch 61 started
+train loss: 0.02509618903015854, test_loss: 0.01348086353391409
+epoch 62 started
+train loss: 0.025125033092384303, test_loss: 0.013497406616806984
+epoch 63 started
+train loss: 0.025109582781321176, test_loss: 0.01348751038312912
+epoch 64 started
+train loss: 0.025127253510055153, test_loss: 0.013504544273018837
+epoch 65 started
+train loss: 0.025102053634674076, test_loss: 0.013493582606315613
+epoch 66 started
+train loss: 0.025109063537456677, test_loss: 0.013491658493876457
+epoch 67 started
+train loss: 0.025120550635966493, test_loss: 0.013475470244884491
+epoch 68 started
+train loss: 0.02510314701205408, test_loss: 0.013496579602360725
+epoch 69 started
+train loss: 0.025120233789147323, test_loss: 0.013514406979084015
+epoch 70 started
+train loss: 0.02512461988035717, test_loss: 0.013500746339559555
+epoch 71 started
+train loss: 0.025125441958152805, test_loss: 0.013514681719243526
+epoch 72 started
+train loss: 0.025108673144391754, test_loss: 0.013469411060214043
+epoch 73 started
+train loss: 0.025089763321375358, test_loss: 0.01348791178315878
+epoch 74 started
+train loss: 0.025105878205240947, test_loss: 0.013483124785125256
+epoch 75 started
+train loss: 0.02510656102458597, test_loss: 0.013481969945132732
+epoch 76 started
+train loss: 0.025104586219424078, test_loss: 0.013464814983308315
+epoch 77 started
+train loss: 0.025123155912643552, test_loss: 0.013500948436558247
+epoch 78 started
+train loss: 0.0251149424148025, test_loss: 0.013536635786294937
+epoch 79 started
+train loss: 0.025116263829615838, test_loss: 0.013476426713168621
+epoch 80 started
+train loss: 0.025102889731940758, test_loss: 0.01349691767245531
+epoch 81 started
+train loss: 0.02512294125075901, test_loss: 0.013477965258061886
+epoch 82 started
+train loss: 0.025121759893019253, test_loss: 0.013506133109331131
+epoch 83 started
+train loss: 0.025114797162002236, test_loss: 0.013471992686390877
+epoch 84 started
+train loss: 0.02509558486642726, test_loss: 0.013484425842761993
+epoch 85 started
+train loss: 0.025113895952883814, test_loss: 0.013483988121151924
+epoch 86 started
+train loss: 0.025124773468719684, test_loss: 0.013478042557835579
+epoch 87 started
+train loss: 0.025120370227211555, test_loss: 0.013479179702699184
+epoch 88 started
+train loss: 0.0251222517306035, test_loss: 0.013500288128852844
+epoch 89 started
+train loss: 0.02511120176980815, test_loss: 0.013486570678651333
+epoch 90 started
+train loss: 0.02512443154609216, test_loss: 0.013501840643584728
+epoch 91 started
+train loss: 0.02509910753187363, test_loss: 0.01347972359508276
+epoch 92 started
+train loss: 0.025106821835357722, test_loss: 0.013498282991349697
+epoch 93 started
+train loss: 0.025118902358025524, test_loss: 0.013500602915883064
+epoch 94 started
+train loss: 0.025109954166206688, test_loss: 0.013511020690202713
+epoch 95 started
+train loss: 0.02511096523708797, test_loss: 0.013473434373736382
+epoch 96 started
+train loss: 0.025117899524567684, test_loss: 0.013492344878613949
+epoch 97 started
+train loss: 0.0251081014765597, test_loss: 0.013468488119542599
+epoch 98 started
+train loss: 0.025121916432129052, test_loss: 0.013477019965648651
+epoch 99 started
+train loss: 0.025108236406335242, test_loss: 0.01352549996227026
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4250it [02:33, 27.76it/s]
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
