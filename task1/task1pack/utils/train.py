@@ -183,3 +183,62 @@ def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=2
             optimizer.step()
     print('Finished Training')
     return net
+
+
+def train_loop(model, epochs, criterion, train_dataloader, test_dataloader, device, wandb_instance):
+    model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    model.eval()
+
+    total_loss = 0.
+    with torch.no_grad():
+        for x, target in test_dataloader:
+            x, target = x.to(device), target.to(device)
+            pred = model(x)
+            loss = criterion(pred, target)
+            total_loss += loss.item()
+        
+        print(f'Initital test loss: {total_loss / len(test_dataloader.dataset)}')
+        if wandb_instance is not None:
+            wandb_instance.log({
+            'val': {
+                'loss': total_loss / len(test_dataloader.dataset),
+            },
+        }, step=0)
+
+    for i in range(epochs):
+        print(f'Epoch {i+1}:')
+
+        # learning
+        model.train()
+        total_train_loss = 0.
+        for x, target in train_dataloader:
+            x, target = x.to(device), target.to(device)
+            optimizer.zero_grad()
+            pred = model(x)
+            loss = criterion(pred, target)
+            total_train_loss += loss
+            loss.backward()
+            optimizer.step()
+
+        # evaluation
+        model.eval()
+        total_test_loss = 0.
+        with torch.no_grad():
+            for x, target in test_dataloader:
+                x, target = x.to(device), target.to(device)
+                pred = model(x)
+                loss = criterion(pred, target)
+                total_test_loss += loss.item()
+                
+        print(f'train loss: {total_train_loss / len(train_dataloader.dataset)},\
+               test_loss: {total_test_loss / len(test_dataloader.dataset)}')
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'val': {
+                    'loss': total_test_loss / len(test_dataloader.dataset),
+                },
+                'train': {
+                    'loss': total_train_loss / len(train_dataloader.dataset),
+                },
+            }, step=i+1)

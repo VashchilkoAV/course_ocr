@@ -2,3 +2,5 @@
 *.egg-info/
 *.pth
 .ipynb_checkpoints
+*.png
+__pycache__
