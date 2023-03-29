@@ -192,8 +192,8 @@ def train_loop(model, criterion, train_dataloader, test_dataloader, device, wand
     model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
     scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+    
     model.eval()
-
     total_loss = 0.
     with torch.no_grad():
         for x, target in test_dataloader:
@@ -201,7 +201,7 @@ def train_loop(model, criterion, train_dataloader, test_dataloader, device, wand
             pred = model(x)
             loss = criterion(pred, target)
             total_loss += loss.item() * x.shape[0]
-        
+       
         test_losses.append(total_loss / len(test_dataloader.dataset))
         print(f'Initital test loss: {total_loss / len(test_dataloader.dataset)}')
         if wandb_instance is not None:
@@ -262,3 +262,4 @@ def train_loop(model, criterion, train_dataloader, test_dataloader, device, wand
             }, step=i+1)
                            
     return np.array(train_losses), np.array(test_losses), model
+

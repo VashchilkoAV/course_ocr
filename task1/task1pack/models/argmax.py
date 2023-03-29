@@ -14,7 +14,7 @@ class SpatialSoftArgmax(nn.Module):
         https://arxiv.org/abs/1504.00702
     """
 
-    def __init__(self, normalize=False, alpha=100.):
+    def __init__(self, normalize=False, alpha=100., relative=True):
         """Constructor.
         Args:
             normalize (bool): Whether to use normalized
@@ -25,6 +25,7 @@ class SpatialSoftArgmax(nn.Module):
 
         self.normalize = normalize
         self.alpha = alpha
+        self.relative=relative
 
     def _coord_grid(self, h, w, device):
         if self.normalize:
@@ -59,8 +60,12 @@ class SpatialSoftArgmax(nn.Module):
         # with the softmax, then sum over the h*w dimension
         # this effectively computes the weighted mean of x
         # and y locations
-        x_mean = (softmax * xc.flatten()).sum(dim=1, keepdims=True) / h
-        y_mean = (softmax * yc.flatten()).sum(dim=1, keepdims=True) / w
+        x_mean = (softmax * xc.flatten()).sum(dim=1, keepdims=True)
+        y_mean = (softmax * yc.flatten()).sum(dim=1, keepdims=True)
+
+        if self.relative:
+            x_mean /= h
+            y_mean /= w
 
         # concatenate and reshape the result
         # to (B, C*2) where for every feature
