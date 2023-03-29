@@ -263,3 +263,85 @@ def train_loop(model, criterion, train_dataloader, test_dataloader, device, wand
                            
     return np.array(train_losses), np.array(test_losses), model
 
+
+def train_new(model, criterion, device, train_dataset, test_dataset, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None, eval_every=5):
+    test_losses = []
+    train_losses = []
+
+    model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=training_kwargs['lr'])
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, training_kwargs['milestones'], gamma=training_kwargs['gamma'])
+
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, **train_dataloader_kwargs)
+    test_dataloader = torch.utils.data.DataLoader(test_dataset, **test_dataloader_kwargs)
+
+    # first eval
+    model.eval()
+    with torch.no_grad():
+        loss_sum = 0.
+        for input, target in test_dataloader:
+            input, target = input.to(device), target.to(device)
+            pred = model(input)
+            loss = criterion(pred, target)
+            loss_sum += loss
+
+        val_loss = loss_sum / len(test_dataset)
+        test_losses.append(val_loss)
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'val': {
+                    'loss': val_loss,
+                },
+            }, step=0)
+
+    # loop
+    for epoch in range(training_kwargs['epochs']):
+        print(f'Epoch {epoch + 1}:')
+
+        if (epoch + 1) % eval_every == 0:
+        # eval
+            model.eval()
+            with torch.no_grad():
+                loss_sum = 0.
+                for input, target in test_dataloader:
+                    input, target = input.to(device), target.to(device)
+                    pred = model(input)
+                    loss = criterion(pred, target)
+                    loss_sum += loss
+
+                val_loss = loss_sum / len(test_dataset)
+                test_losses.append(val_loss)
+                print(f'Val loss: {val_loss}')
+                if wandb_instance is not None:
+                    wandb_instance.log({
+                        'val': {
+                            'loss': val_loss,
+                        },
+                    }, step=epoch+1)
+
+        # train
+        model.train()
+        loss_sum = 0.
+        for input, target in train_dataloader:
+            input, target = input.to(device), target.to(device)
+            optimizer.zero_grad()
+            pred = model(input)
+            loss = criterion(pred, target)
+            loss.backward()
+            optimizer.step()
+            loss_sum += loss
+
+        train_loss = loss_sum / len(train_dataset)
+        train_losses.append(train_loss)
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'train': {
+                    'loss': train_loss,
+                },
+                'lr': scheduler.get_last_lr()[0],
+            }, step=epoch+1)
+
+
+        scheduler.step()
+
+    return np.array(train_losses), np.array(test_losses), model
