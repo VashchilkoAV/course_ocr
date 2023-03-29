@@ -287,6 +287,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
 
         val_loss = loss_sum / len(test_dataset)
         test_losses.append(val_loss)
+        print(f'Initial val loss: {val_loss}')
         if wandb_instance is not None:
             wandb_instance.log({
                 'val': {
@@ -333,6 +334,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
 
         train_loss = loss_sum / len(train_dataset)
         train_losses.append(train_loss)
+        print(f'Train loss: {train_loss}')
         if wandb_instance is not None:
             wandb_instance.log({
                 'train': {
