@@ -1,0 +1,50 @@
+2023-03-27 22:23:51,560 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Configure stats pid to 1243680
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/settings
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_222351-m3o13nb6/logs/debug.log
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_222351-m3o13nb6/logs/debug-internal.log
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:_jupyter_setup():452] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7fbfa4f11430>
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:init():546] calling init triggers
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'batch_size': 16, 'architecture': 'HRNet', 'dataset': 'MIDV-500', 'criterion': 'MSELoss', 'optimizer': 'Adam', 'image_size': [512, 512], 'heatmap_size': [128, 128]}
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:init():602] starting backend
+2023-03-27 22:23:51,561 INFO    MainThread:1243680 [wandb_init.py:init():606] setting up manager
+2023-03-27 22:23:51,563 INFO    MainThread:1243680 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-03-27 22:23:51,565 INFO    MainThread:1243680 [wandb_init.py:init():613] backend started and connected
+2023-03-27 22:23:51,568 INFO    MainThread:1243680 [wandb_run.py:_label_probe_notebook():1204] probe notebook
+2023-03-27 22:23:51,568 INFO    MainThread:1243680 [wandb_run.py:_label_probe_notebook():1214] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2023-03-27 22:23:51,568 INFO    MainThread:1243680 [wandb_init.py:init():701] updated telemetry
+2023-03-27 22:23:51,612 INFO    MainThread:1243680 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-03-27 22:23:52,115 INFO    MainThread:1243680 [wandb_run.py:_on_init():2133] communicating current version
+2023-03-27 22:23:52,309 INFO    MainThread:1243680 [wandb_run.py:_on_init():2142] got version response 
+2023-03-27 22:23:52,309 INFO    MainThread:1243680 [wandb_init.py:init():789] starting run threads in backend
+2023-03-27 22:23:52,503 INFO    MainThread:1243680 [wandb_run.py:_console_start():2114] atexit reg
+2023-03-27 22:23:52,503 INFO    MainThread:1243680 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-03-27 22:23:52,503 INFO    MainThread:1243680 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-03-27 22:23:52,503 INFO    MainThread:1243680 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-03-27 22:23:52,504 INFO    MainThread:1243680 [wandb_init.py:init():831] run started, returning control to user process
+2023-03-27 22:23:52,513 INFO    MainThread:1243680 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-27 22:23:52,513 INFO    MainThread:1243680 [wandb_init.py:_pause_backend():417] pausing backend
+2023-03-27 22:23:52,519 INFO    MainThread:1243680 [wandb_init.py:_resume_backend():422] resuming backend
+2023-03-27 22:23:52,521 INFO    MainThread:1243680 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-27 22:23:52,521 INFO    MainThread:1243680 [wandb_init.py:_pause_backend():417] pausing backend
+2023-03-27 22:23:52,526 INFO    MainThread:1243680 [wandb_init.py:_resume_backend():422] resuming backend
+2023-03-29 00:21:47,506 INFO    MainThread:1243680 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-29 00:21:47,507 INFO    MainThread:1243680 [wandb_init.py:_pause_backend():417] pausing backend
+2023-03-29 00:21:47,513 INFO    MainThread:1243680 [wandb_init.py:_resume_backend():422] resuming backend
+2023-03-29 00:21:47,803 INFO    MainThread:1243680 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-29 00:21:47,803 INFO    MainThread:1243680 [wandb_init.py:_pause_backend():417] pausing backend
+2023-03-29 00:21:47,823 INFO    MainThread:1243680 [wandb_init.py:_resume_backend():422] resuming backend
+2023-03-29 00:28:40,636 INFO    MainThread:1243680 [wandb_run.py:_finish():1854] finishing run vashchilkoav/ocr task 1/m3o13nb6
+2023-03-29 00:28:40,637 ERROR   MainThread:1243680 [jupyter.py:save_history():437] Run pip install nbformat to save notebook history
+2023-03-29 00:28:40,637 INFO    MainThread:1243680 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-29 00:28:40,637 INFO    MainThread:1243680 [wandb_init.py:_jupyter_teardown():434] cleaning up jupyter logic
+2023-03-29 00:28:40,637 INFO    MainThread:1243680 [wandb_run.py:_atexit_cleanup():2083] got exitcode: 0
+2023-03-29 00:28:40,637 INFO    MainThread:1243680 [wandb_run.py:_restore():2066] restore
+2023-03-29 00:28:40,638 INFO    MainThread:1243680 [wandb_run.py:_restore():2072] restore done
+2023-03-29 00:28:46,734 INFO    MainThread:1243680 [wandb_run.py:_footer_history_summary_info():3422] rendering history
+2023-03-29 00:28:46,735 INFO    MainThread:1243680 [wandb_run.py:_footer_history_summary_info():3454] rendering summary
+2023-03-29 00:28:46,742 INFO    MainThread:1243680 [wandb_run.py:_footer_sync_info():3380] logging synced files

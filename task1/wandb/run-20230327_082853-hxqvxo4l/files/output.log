@@ -1,0 +1,557 @@
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/torch/functional.py:504: UserWarning: torch.meshgrid: in an upcoming release, it will be required to pass the indexing argument. (Triggered internally at ../aten/src/ATen/native/TensorShape.cpp:3190.)
+  return _VF.meshgrid(tensors, **kwargs)  # type: ignore[attr-defined]
+initial loss 0.11798501759767532
+epoch 0 started
+train loss: 0.09071443165885285, test_loss: 0.03943267837166786
+epoch 1 started
+train loss: 0.04286523360808912, test_loss: 0.03320856764912605
+epoch 2 started
+train loss: 0.034160545933575905, test_loss: 0.020600154995918274
+epoch 3 started
+train loss: 0.03310414993445322, test_loss: 0.02037038467824459
+epoch 4 started
+train loss: 0.0305620129926995, test_loss: 0.018872443586587906
+epoch 5 started
+train loss: 0.029854524065740407, test_loss: 0.02701779268682003
+epoch 6 started
+train loss: 0.029651124821352175, test_loss: 0.016731442883610725
+epoch 7 started
+train loss: 0.028705439138450726, test_loss: 0.0161683838814497
+epoch 8 started
+train loss: 0.02777562563070595, test_loss: 0.015711860731244087
+epoch 9 started
+train loss: 0.02767496287976558, test_loss: 0.015464113093912601
+epoch 10 started
+train loss: 0.027442775009798685, test_loss: 0.015191293321549892
+epoch 11 started
+train loss: 0.027644856061669998, test_loss: 0.01821034774184227
+epoch 12 started
+train loss: 0.028738887086676965, test_loss: 0.015623673796653748
+epoch 13 started
+train loss: 0.02971998597682354, test_loss: 0.01880822516977787
+epoch 14 started
+train loss: 0.03072915479216525, test_loss: 0.016776978969573975
+epoch 15 started
+train loss: 0.02938457931200641, test_loss: 0.016886070370674133
+epoch 16 started
+train loss: 0.029371125921898056, test_loss: 0.016554713249206543
+epoch 17 started
+train loss: 0.02870033702700831, test_loss: 0.0161738358438015
+epoch 18 started
+train loss: 0.028335029330004806, test_loss: 0.016289692372083664
+epoch 19 started
+train loss: 0.027886860721212412, test_loss: 0.01605185680091381
+epoch 20 started
+train loss: 0.027549326747248415, test_loss: 0.015458025969564915
+epoch 21 started
+train loss: 0.027196778279695927, test_loss: 0.015162511728703976
+epoch 22 started
+train loss: 0.027202318321672334, test_loss: 0.01523741427809
+epoch 23 started
+train loss: 0.026903414975095075, test_loss: 0.015335365198552608
+epoch 24 started
+train loss: 0.026788256842077578, test_loss: 0.015356111340224743
+epoch 25 started
+train loss: 0.028024946062942035, test_loss: 0.015231043100357056
+epoch 26 started
+train loss: 0.027172791640623473, test_loss: 0.014884955249726772
+epoch 27 started
+train loss: 0.027711710818818704, test_loss: 0.0296127088367939
+epoch 28 started
+train loss: 0.02797973068975677, test_loss: 0.015083780512213707
+epoch 29 started
+train loss: 0.02689484400200724, test_loss: 0.014774219132959843
+epoch 30 started
+train loss: 0.02672677338601456, test_loss: 0.01471028570085764
+epoch 31 started
+train loss: 0.02667572540459722, test_loss: 0.01496078446507454
+epoch 32 started
+train loss: 0.026971088992598067, test_loss: 0.015807269141077995
+epoch 33 started
+train loss: 0.026692360566812567, test_loss: 0.014668254181742668
+epoch 34 started
+train loss: 0.026358872422341455, test_loss: 0.014517610892653465
+epoch 35 started
+train loss: 0.026177303728348176, test_loss: 0.014603917486965656
+epoch 36 started
+train loss: 0.02652372553295988, test_loss: 0.014570307917892933
+epoch 37 started
+train loss: 0.02619899047983511, test_loss: 0.014479818753898144
+epoch 38 started
+train loss: 0.026210466778138652, test_loss: 0.014405719004571438
+epoch 39 started
+train loss: 0.02593683020365591, test_loss: 0.014239141717553139
+epoch 40 started
+train loss: 0.025707313842888522, test_loss: 0.014262205921113491
+epoch 41 started
+train loss: 0.025602261086792817, test_loss: 0.014169215224683285
+epoch 42 started
+train loss: 0.02566950521889209, test_loss: 0.014127612113952637
+epoch 43 started
+train loss: 0.02555638604202873, test_loss: 0.01419370248913765
+epoch 44 started
+train loss: 0.02539143226230018, test_loss: 0.014120543375611305
+epoch 45 started
+train loss: 0.025252107744953328, test_loss: 0.015193368308246136
+epoch 46 started
+train loss: 0.025284703265372497, test_loss: 0.014065026305615902
+epoch 47 started
+train loss: 0.02522916851843807, test_loss: 0.013814027421176434
+epoch 48 started
+train loss: 0.024982973183276563, test_loss: 0.013890611939132214
+epoch 49 started
+train loss: 0.024989006542974885, test_loss: 0.01388175506144762
+epoch 50 started
+train loss: 0.024863610932308284, test_loss: 0.013817118480801582
+epoch 51 started
+train loss: 0.024889584704526766, test_loss: 0.013914603739976883
+epoch 52 started
+train loss: 0.024661762331171695, test_loss: 0.01396683044731617
+epoch 53 started
+train loss: 0.02461936991312541, test_loss: 0.014479340985417366
+epoch 54 started
+train loss: 0.024714760143459507, test_loss: 0.013741930015385151
+epoch 55 started
+train loss: 0.02451214104075916, test_loss: 0.01399938203394413
+epoch 56 started
+train loss: 0.02438919553242158, test_loss: 0.013667714782059193
+epoch 57 started
+train loss: 0.024310198024198013, test_loss: 0.013763666152954102
+epoch 58 started
+train loss: 0.024338684114419657, test_loss: 0.013579828664660454
+epoch 59 started
+train loss: 0.024197173127114575, test_loss: 0.013608763925731182
+epoch 60 started
+train loss: 0.024198032985233504, test_loss: 0.013567735441029072
+epoch 61 started
+train loss: 0.024093194787773036, test_loss: 0.013549493625760078
+epoch 62 started
+train loss: 0.024078818233517398, test_loss: 0.013520426116883755
+epoch 63 started
+train loss: 0.024047166382453206, test_loss: 0.013894174247980118
+epoch 64 started
+train loss: 0.02430220580468553, test_loss: 0.01357155479490757
+epoch 65 started
+train loss: 0.023968804292962886, test_loss: 0.01350837480276823
+epoch 66 started
+train loss: 0.023904844850871347, test_loss: 0.013395899906754494
+epoch 67 started
+train loss: 0.023875406438102282, test_loss: 0.013430170714855194
+epoch 68 started
+train loss: 0.02389056368026234, test_loss: 0.013629063963890076
+epoch 69 started
+train loss: 0.023814695609741778, test_loss: 0.01346626877784729
+epoch 70 started
+train loss: 0.023770917919007064, test_loss: 0.013288545422255993
+epoch 71 started
+train loss: 0.02373923015849349, test_loss: 0.013195420615375042
+epoch 72 started
+train loss: 0.02371818553261359, test_loss: 0.013342234306037426
+epoch 73 started
+train loss: 0.02370951012354843, test_loss: 0.013351533561944962
+epoch 74 started
+train loss: 0.023675130822604324, test_loss: 0.013266717083752155
+epoch 75 started
+train loss: 0.023670329244591164, test_loss: 0.013303440064191818
+epoch 76 started
+train loss: 0.02366630637646137, test_loss: 0.013230971060693264
+epoch 77 started
+train loss: 0.023717533698800253, test_loss: 0.01331248041242361
+epoch 78 started
+train loss: 0.023601149272248483, test_loss: 0.013292977586388588
+epoch 79 started
+train loss: 0.02357117022516572, test_loss: 0.013347439467906952
+epoch 80 started
+train loss: 0.02354251265309618, test_loss: 0.013227776624262333
+epoch 81 started
+train loss: 0.023580543946341743, test_loss: 0.013288806192576885
+epoch 82 started
+train loss: 0.02352642177720554, test_loss: 0.013209836557507515
+epoch 83 started
+train loss: 0.023505402067842494, test_loss: 0.013313842006027699
+epoch 84 started
+train loss: 0.023534228802288584, test_loss: 0.013182586058974266
+epoch 85 started
+train loss: 0.023486154800463867, test_loss: 0.013188667595386505
+epoch 86 started
+train loss: 0.023469088973277912, test_loss: 0.013214124366641045
+epoch 87 started
+train loss: 0.023455375108564373, test_loss: 0.01326524093747139
+epoch 88 started
+train loss: 0.02344106621084003, test_loss: 0.013202193193137646
+epoch 89 started
+train loss: 0.02344552963768365, test_loss: 0.013339098542928696
+epoch 90 started
+train loss: 0.023423422492799415, test_loss: 0.01330908015370369
+epoch 91 started
+train loss: 0.02345095857994498, test_loss: 0.01327061653137207
+epoch 92 started
+train loss: 0.02339320318476114, test_loss: 0.01327572949230671
+epoch 93 started
+train loss: 0.023394853060121283, test_loss: 0.013168234378099442
+epoch 94 started
+train loss: 0.02343078666204487, test_loss: 0.01320947427302599
+epoch 95 started
+train loss: 0.023373615856274097, test_loss: 0.013190553523600101
+epoch 96 started
+train loss: 0.023372681796380284, test_loss: 0.013223942369222641
+epoch 97 started
+train loss: 0.023356555289085788, test_loss: 0.01317400112748146
+epoch 98 started
+train loss: 0.023347364059840663, test_loss: 0.013142681680619717
+epoch 99 started
+train loss: 0.02337525217444636, test_loss: 0.013175603933632374
+epoch 100 started
+train loss: 0.02334445499582216, test_loss: 0.013192914426326752
+epoch 101 started
+train loss: 0.023329666327689274, test_loss: 0.013147114776074886
+epoch 102 started
+train loss: 0.023321263215621002, test_loss: 0.013166457414627075
+epoch 103 started
+train loss: 0.0233368974212291, test_loss: 0.013154039159417152
+epoch 104 started
+train loss: 0.023311204430293792, test_loss: 0.013146907091140747
+epoch 105 started
+train loss: 0.023304629970620487, test_loss: 0.013104657642543316
+epoch 106 started
+train loss: 0.02329524804528254, test_loss: 0.013165564276278019
+epoch 107 started
+train loss: 0.023301054065086646, test_loss: 0.013151533901691437
+epoch 108 started
+train loss: 0.02328776390485083, test_loss: 0.013109005056321621
+epoch 109 started
+train loss: 0.023287986124030016, test_loss: 0.013178983703255653
+epoch 110 started
+train loss: 0.023282732241308883, test_loss: 0.013176748529076576
+epoch 111 started
+train loss: 0.023274950843707693, test_loss: 0.013122167438268661
+epoch 112 started
+train loss: 0.023274110495549394, test_loss: 0.013063852675259113
+epoch 113 started
+train loss: 0.02326857884483096, test_loss: 0.013131819665431976
+epoch 114 started
+train loss: 0.023266569185320156, test_loss: 0.013099975883960724
+epoch 115 started
+train loss: 0.023246268248580497, test_loss: 0.013119000010192394
+epoch 116 started
+train loss: 0.023249496782747365, test_loss: 0.013207186944782734
+epoch 117 started
+train loss: 0.0232449925965089, test_loss: 0.013188915327191353
+epoch 118 started
+train loss: 0.023251544807862956, test_loss: 0.013121647760272026
+epoch 119 started
+train loss: 0.023242583337248237, test_loss: 0.013162393122911453
+epoch 120 started
+train loss: 0.023239979065173038, test_loss: 0.013163955882191658
+epoch 121 started
+train loss: 0.023247069441172892, test_loss: 0.01321022491902113
+epoch 122 started
+train loss: 0.023231744120753968, test_loss: 0.013143557123839855
+epoch 123 started
+train loss: 0.02323855116472779, test_loss: 0.013123217038810253
+epoch 124 started
+train loss: 0.023227617631554103, test_loss: 0.013190421275794506
+epoch 125 started
+train loss: 0.023230307737581564, test_loss: 0.013155573047697544
+epoch 126 started
+train loss: 0.023226462597189572, test_loss: 0.01314423605799675
+epoch 127 started
+train loss: 0.02323165989582776, test_loss: 0.013173192739486694
+epoch 128 started
+train loss: 0.02322328400987317, test_loss: 0.013109336607158184
+epoch 129 started
+train loss: 0.02322220270330685, test_loss: 0.013113785535097122
+epoch 130 started
+train loss: 0.023208696394119346, test_loss: 0.01315064076334238
+epoch 131 started
+train loss: 0.02323197585584629, test_loss: 0.013138800859451294
+epoch 132 started
+train loss: 0.023216447264920653, test_loss: 0.013133755885064602
+epoch 133 started
+train loss: 0.023219260076335298, test_loss: 0.013120461255311966
+epoch 134 started
+train loss: 0.02321779958063936, test_loss: 0.01312074065208435
+epoch 135 started
+train loss: 0.02320775365504752, test_loss: 0.01313144713640213
+epoch 136 started
+train loss: 0.02321374809460914, test_loss: 0.013125564903020859
+epoch 137 started
+train loss: 0.02320975395559799, test_loss: 0.013085722923278809
+epoch 138 started
+train loss: 0.0232043481243766, test_loss: 0.01310067716985941
+epoch 139 started
+train loss: 0.02322288010327611, test_loss: 0.01313328929245472
+epoch 140 started
+train loss: 0.02320814565817792, test_loss: 0.013122240081429482
+epoch 141 started
+train loss: 0.023217349353737, test_loss: 0.013122188858687878
+epoch 142 started
+train loss: 0.02321367790032777, test_loss: 0.013123532757163048
+epoch 143 started
+train loss: 0.023206455225590616, test_loss: 0.013104097917675972
+epoch 144 started
+train loss: 0.023198969584232794, test_loss: 0.01313293632119894
+epoch 145 started
+train loss: 0.023196577987878948, test_loss: 0.013099663890898228
+epoch 146 started
+train loss: 0.023200493098556763, test_loss: 0.01312241144478321
+epoch 147 started
+train loss: 0.023198698123971035, test_loss: 0.013109504245221615
+epoch 148 started
+train loss: 0.023198598123209586, test_loss: 0.013122533448040485
+epoch 149 started
+train loss: 0.023201041505672038, test_loss: 0.013112878426909447
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+4250it [07:23,  9.59it/s]
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
+/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection
+  return lib.intersection(a, b, **kwargs)
