@@ -1,0 +1,8 @@
+/home/avashchilko/abbyy10sem/course_ocr/task1/task1pack/models/hrnet.py:488: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  or self.pretrained_layers[0] is '*':
+/home/avashchilko/abbyy10sem/course_ocr/task1/task1pack/models/hrnet.py:488: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  or self.pretrained_layers[0] is '*':
+/home/avashchilko/abbyy10sem/course_ocr/task1/task1pack/models/hrnet.py:488: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  or self.pretrained_layers[0] is '*':
+/home/avashchilko/abbyy10sem/course_ocr/task1/task1pack/models/hrnet.py:488: SyntaxWarning: "is" with a literal. Did you mean "=="?
+  or self.pretrained_layers[0] is '*':

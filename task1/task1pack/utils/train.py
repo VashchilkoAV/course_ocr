@@ -173,8 +173,8 @@ def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=2
                     wandb_instance.log({
                         'train': {
                             'loss': running_loss / stats_step,
-                            'lr': optimizer.param_groups[0]['lr']
                         },
+                        'lr': optimizer.param_groups[0]['lr']
                     }, step=step)
                 step += 1
 
@@ -183,3 +183,82 @@ def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=2
             optimizer.step()
     print('Finished Training')
     return net
+
+
+def train_loop(model, criterion, train_dataloader, test_dataloader, device, wandb_instance, epochs=100, step_size=20, gamma=0.5):
+    test_losses = []
+    train_losses = []
+    
+    model.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+    model.eval()
+
+    total_loss = 0.
+    with torch.no_grad():
+        for x, target in test_dataloader:
+            x, target = x.to(device), target.to(device)
+            pred = model(x)
+            loss = criterion(pred, target)
+            total_loss += loss.item() * x.shape[0]
+        
+        test_losses.append(total_loss / len(test_dataloader.dataset))
+        print(f'Initital test loss: {total_loss / len(test_dataloader.dataset)}')
+        if wandb_instance is not None:
+            wandb_instance.log({
+            'val': {
+                'loss': total_loss / len(test_dataloader.dataset),
+            },
+        }, step=0)
+
+    for i in range(epochs):
+        print(f'Epoch {i+1}:')
+
+        # learning
+        print('training')
+        model.train()
+        total_train_loss = 0.
+        for x, target in train_dataloader:
+            x, target = x.to(device), target.to(device)
+            optimizer.zero_grad()
+            pred = model(x)
+            loss = criterion(pred, target)
+            total_train_loss += loss.item() * x.shape[0]
+            loss.backward()
+            optimizer.step()
+            
+        scheduler.step()
+
+        # evaluation
+        print('evaluating')
+        if (i + 1) % 10 == 0:
+            model.eval()
+            total_test_loss = 0.
+            with torch.no_grad():
+                for x, target in test_dataloader:
+                    x, target = x.to(device), target.to(device)
+                    pred = model(x)
+                    loss = criterion(pred, target)
+                    total_test_loss += loss.item() * x.shape[0]
+            test_losses.append(total_test_loss / len(test_dataloader.dataset))
+            print(f'test loss: {total_test_loss / len(test_dataloader.dataset)}')
+            
+            if wandb_instance is not None:
+                wandb_instance.log({
+                    'val': {
+                        'loss': total_test_loss / len(test_dataloader.dataset),
+                    },
+                }, step=i+1)
+            
+        train_losses.append(total_train_loss / len(train_dataloader.dataset))
+        print(f'train loss: {total_train_loss / len(train_dataloader.dataset)}')
+               
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'train': {
+                    'loss': total_train_loss / len(train_dataloader.dataset),
+                },
+                'lr': scheduler.get_last_lr()[0],
+            }, step=i+1)
+                           
+    return np.array(train_losses), np.array(test_losses), model

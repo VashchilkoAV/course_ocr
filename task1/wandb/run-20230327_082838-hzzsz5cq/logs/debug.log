@@ -1,0 +1,53 @@
+2023-03-27 08:28:38,964 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Configure stats pid to 3604435
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/settings
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_082838-hzzsz5cq/logs/debug.log
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_082838-hzzsz5cq/logs/debug-internal.log
+2023-03-27 08:28:38,965 INFO    MainThread:3604435 [wandb_init.py:_jupyter_setup():452] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f2e143d4520>
+2023-03-27 08:28:38,966 INFO    MainThread:3604435 [wandb_init.py:init():546] calling init triggers
+2023-03-27 08:28:38,966 INFO    MainThread:3604435 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'train_dataloader_config': {'batch_size': 24, 'shuffle': True}, 'test_dataloader_config': {'batch_size': 24, 'shuffle': False}, 'training_config': {'lr': 0.001, 'epochs': 100, 'step_size': 5, 'gamma': 0.8}, 'architecture': 'HRNet', 'dataset': 'MIDV-500', 'criterion': 'MSELoss', 'optimizer': 'Adam', 'image_size': [512, 512], 'heatmap_size': [128, 128]}
+2023-03-27 08:28:38,966 INFO    MainThread:3604435 [wandb_init.py:init():602] starting backend
+2023-03-27 08:28:38,967 INFO    MainThread:3604435 [wandb_init.py:init():606] setting up manager
+2023-03-27 08:28:38,969 INFO    MainThread:3604435 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-03-27 08:28:38,971 INFO    MainThread:3604435 [wandb_init.py:init():613] backend started and connected
+2023-03-27 08:28:38,974 INFO    MainThread:3604435 [wandb_run.py:_label_probe_notebook():1204] probe notebook
+2023-03-27 08:28:38,975 INFO    MainThread:3604435 [wandb_run.py:_label_probe_notebook():1214] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2023-03-27 08:28:38,975 INFO    MainThread:3604435 [wandb_init.py:init():701] updated telemetry
+2023-03-27 08:28:39,001 INFO    MainThread:3604435 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-03-27 08:28:39,529 INFO    MainThread:3604435 [wandb_run.py:_on_init():2133] communicating current version
+2023-03-27 08:28:39,776 INFO    MainThread:3604435 [wandb_run.py:_on_init():2142] got version response 
+2023-03-27 08:28:39,776 INFO    MainThread:3604435 [wandb_init.py:init():789] starting run threads in backend
+2023-03-27 08:28:39,904 INFO    MainThread:3604435 [wandb_run.py:_console_start():2114] atexit reg
+2023-03-27 08:28:39,904 INFO    MainThread:3604435 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-03-27 08:28:39,905 INFO    MainThread:3604435 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-03-27 08:28:39,905 INFO    MainThread:3604435 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-03-27 08:28:39,906 INFO    MainThread:3604435 [wandb_init.py:init():831] run started, returning control to user process
+2023-03-27 08:28:39,913 INFO    MainThread:3604435 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-27 08:28:39,914 INFO    MainThread:3604435 [wandb_init.py:_pause_backend():417] pausing backend
+2023-03-27 08:28:53,830 INFO    MainThread:3604435 [wandb_init.py:_resume_backend():422] resuming backend
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Configure stats pid to 3604435
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/settings
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-03-27 08:28:53,842 INFO    MainThread:3604435 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_082853-hxqvxo4l/logs/debug.log
+2023-03-27 08:28:53,843 INFO    MainThread:3604435 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230327_082853-hxqvxo4l/logs/debug-internal.log
+2023-03-27 08:28:53,843 INFO    MainThread:3604435 [wandb_init.py:init():546] calling init triggers
+2023-03-27 08:28:53,843 INFO    MainThread:3604435 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'train_dataloader_config': {'batch_size': 24, 'shuffle': True}, 'test_dataloader_config': {'batch_size': 24, 'shuffle': False}, 'training_config': {'lr': 0.001, 'epochs': 150, 'step_size': 5, 'gamma': 0.8}, 'architecture': 'HRNet', 'dataset': 'MIDV-500', 'criterion': 'MSELoss', 'optimizer': 'Adam', 'image_size': [512, 512], 'heatmap_size': [128, 128]}
+2023-03-27 08:28:53,843 INFO    MainThread:3604435 [wandb_init.py:init():568] re-initializing run, found existing run on stack: hzzsz5cq
+2023-03-27 08:28:53,845 INFO    MainThread:3604435 [wandb_run.py:_finish():1854] finishing run vashchilkoav/ocr task 1/hzzsz5cq
+2023-03-27 08:28:53,845 ERROR   MainThread:3604435 [jupyter.py:save_history():437] Run pip install nbformat to save notebook history
+2023-03-27 08:28:53,846 INFO    MainThread:3604435 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-03-27 08:28:53,846 INFO    MainThread:3604435 [wandb_init.py:_jupyter_teardown():434] cleaning up jupyter logic
+2023-03-27 08:28:53,846 INFO    MainThread:3604435 [wandb_run.py:_atexit_cleanup():2083] got exitcode: 0
+2023-03-27 08:28:53,846 INFO    MainThread:3604435 [wandb_run.py:_restore():2066] restore
+2023-03-27 08:28:53,846 INFO    MainThread:3604435 [wandb_run.py:_restore():2072] restore done
+2023-03-27 08:28:57,473 INFO    MainThread:3604435 [wandb_run.py:_footer_history_summary_info():3422] rendering history
+2023-03-27 08:28:57,473 INFO    MainThread:3604435 [wandb_run.py:_footer_history_summary_info():3454] rendering summary
+2023-03-27 08:28:57,475 INFO    MainThread:3604435 [wandb_run.py:_footer_sync_info():3380] logging synced files
