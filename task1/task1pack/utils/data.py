@@ -52,10 +52,11 @@ class HeatmapDataset(VisionDataset):
     
 
 class SegmentationDataset(VisionDataset):
-    def __init__(self, data_packs, split='train', transforms=None):
+    def __init__(self, data_packs, split='train', image_transforms=None, target_transforms=None):
         self.data_packs = data_packs
         self.indices = []
-        self.transforms = transforms
+        self.image_transforms = image_transforms
+        self.target_transforms = target_transforms
         self.split = split
 
         for dp_idx, dp in enumerate(data_packs):
@@ -68,24 +69,18 @@ class SegmentationDataset(VisionDataset):
     def __len__(self):
         return len(self.indices)
 
-    def __getitem__(self, idx):
-        
-        i, j = self.indices[idx]
-        mask = np.zeros(np.array(self.datapacks[i][j].image).shape[:2])
-        mask = torch.LongTensor(cv2.fillConvexPoly(mask, np.array(self.datapacks[i][j].gt_data['quad']), (1, )))
-        image = image.permute([2, 0, 1])
-        return image, mask.squeeze(0)
     
     def __getitem__(self, index: int) -> Tuple[Any, Any]:
         dp_idx, im_idx = self.indices[index]
         image = np.array(self.data_packs[dp_idx][im_idx].image.convert('RGB'))
 
-        target = np.zeros(np.array(self.datapacks[dp_idx][im_idx].image).shape[:2])
-        target = torch.LongTensor(cv2.fillConvexPoly(target, np.array(self.datapacks[dp_idx][im_idx].gt_data['quad']), (1, )))
+        target = np.zeros(np.array(self.data_packs[dp_idx][im_idx].image).shape[:2])
+        target = torch.FloatTensor(cv2.fillConvexPoly(target, np.array(self.data_packs[dp_idx][im_idx].gt_data['quad']), (1, )))
 
-        if self.transforms is not None:
-            image = self.transforms(image)
-            target = self.transforms(target)
+        if self.image_transforms is not None:
+            image = self.image_transforms(image)
+        if self.target_transforms is not None:
+            target = self.target_transforms(target[None, ...])
 
         return image, target
     
