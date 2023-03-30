@@ -283,7 +283,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
             input, target = input.to(device), target.to(device)
             pred = model(input)
             loss = criterion(pred, target)
-            loss_sum += loss
+            loss_sum += loss.item()
 
         val_loss = loss_sum / len(test_dataset)
         test_losses.append(val_loss)
@@ -308,7 +308,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
                     input, target = input.to(device), target.to(device)
                     pred = model(input)
                     loss = criterion(pred, target)
-                    loss_sum += loss
+                    loss_sum += loss.item()
 
                 val_loss = loss_sum / len(test_dataset)
                 test_losses.append(val_loss)
@@ -330,7 +330,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
             loss = criterion(pred, target)
             loss.backward()
             optimizer.step()
-            loss_sum += loss
+            loss_sum += loss.item()
 
         train_loss = loss_sum / len(train_dataset)
         train_losses.append(train_loss)

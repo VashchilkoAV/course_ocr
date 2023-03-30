@@ -294,3 +294,36 @@
 2023-03-29 10:04:20,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
 2023-03-29 10:04:20,290 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
 2023-03-29 10:04:22,513 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:27,514 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:32,514 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:35,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:04:35,289 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:04:36,243 INFO    Thread-13 :12551 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230329_095419-bvajuad1/files/output.log
+2023-03-29 10:04:37,517 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:42,518 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:47,519 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:50,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:04:50,289 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:04:52,661 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:04:57,662 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:02,663 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:05,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:05:05,289 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:05:07,978 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:08,253 INFO    Thread-13 :12551 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230329_095419-bvajuad1/files/output.log
+2023-03-29 10:05:12,979 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:17,980 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:20,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:05:20,290 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:05:23,523 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:28,524 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:33,524 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:35,289 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:05:35,290 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:05:39,019 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:40,264 INFO    Thread-13 :12551 [dir_watcher.py:_on_file_modified():295] file/dir modified: /home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230329_095419-bvajuad1/files/output.log
+2023-03-29 10:05:44,020 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:49,021 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: status_report
+2023-03-29 10:05:50,290 DEBUG   HandlerThread:12551 [handler.py:handle_request():144] handle_request: stop_status
+2023-03-29 10:05:50,290 DEBUG   SenderThread:12551 [sender.py:send_request():363] send_request: stop_status
+2023-03-29 10:05:54,332 INFO    MainThread:12551 [internal.py:handle_exit():77] Internal process exited
