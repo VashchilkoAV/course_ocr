@@ -88,3 +88,22 @@ class SegmentationDataset(VisionDataset):
         dp_idx, im_idx = self.indices[index]
         
         return self.data_packs[dp_idx][im_idx].unique_key
+    
+
+def convert_segm_to_quadr(pred, image_size):
+    pred = torch.where(pred > 0.99, 1., 0.)
+    nonzero = pred[0].nonzero().flip(dims=[1])
+
+    if nonzero.shape[0] == 0:
+        return torch.zeros(4, 2)
+
+    x = nonzero[:, 1]
+    y = nonzero[:, 0]
+
+    result = []
+    result.append(nonzero[torch.argmin(x+y)][None, ...] / image_size[0])
+    result.append(nonzero[torch.argmax(-x+y)][None, ...] / image_size[0])
+    result.append(nonzero[torch.argmax(x+y)][None, ...] / image_size[0])
+    result.append(nonzero[torch.argmax(x-y)][None, ...] / image_size[0])
+    result = torch.cat(result)
+    return result
