@@ -24,245 +24,6 @@ def show_train_plots(train_losses, test_losses, title):
     plt.ylabel('Loss')
     plt.show()
 
-def train(model, train_loader, optimizer, criterion, device):
-    model.train()
-    train_losses = []
-
-    for x, target in train_loader:
-        x, target = x.to(device), target.to(device)
-        prediction = model(x)
-        loss = criterion(prediction, target)
-
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-
-        train_losses.append(loss.item())
-
-    return train_losses
-
-
-def eval_loss(model, data_loader, criterion, device):
-    model.eval()
-    total_loss = 0
-    with torch.no_grad():
-        for x, target in data_loader:
-            x, target = x.to(device), target.to(device)
-            prediction = model(x)
-            loss = criterion(prediction, target)
-            total_loss += loss * x.shape[0]
-        avg_loss = total_loss / len(data_loader.dataset)
-    return avg_loss.item()
-
-
-def train_epochs(model, train_loader, test_loader, train_args, criterion, device, wandb_instance=None):
-    epochs, lr = train_args['epochs'], train_args['lr']
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=train_args['step_size'], gamma=train_args['gamma'])
-
-    train_losses = []
-    test_losses = [eval_loss(model, test_loader, criterion, device)]
-
-    print('initial loss {}'.format(test_losses[-1]))
-    if wandb_instance is not None:
-        wandb_instance.log({
-            'val': {
-                'loss': test_losses[-1],
-            },
-        }, step=0)
-
-    for epoch in range(epochs):
-        print(f'epoch {epoch} started')
-
-        model.train()
-        train_loss = train(model, train_loader, optimizer, criterion, device)        
-        test_loss = eval_loss(model, test_loader, criterion, device)
-
-        scheduler.step()
-
-        train_losses.extend(train_loss)
-        test_losses.append(test_loss)
-        print('train loss: {}, test_loss: {}'.format(np.mean(train_loss), 
-                                                     test_losses[-1]))
-        if wandb_instance is not None:
-            wandb_instance.log({
-                'val': {
-                    'loss': test_losses[-1],
-                },
-                'train': {
-                    'loss': np.mean(train_loss),
-                },
-                'lr': scheduler.get_last_lr()[0],
-            }, step=epoch+1)
-
-    return train_losses, test_losses
-
-
-def train_model(train_dataset, test_dataset, model, criterion, device, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None):
-    """
-    train_data: A (n_train, H, W, 1) uint8 numpy array of binary images with values in {0, 1}
-    test_data: A (n_test, H, W, 1) uint8 numpy array of binary images with values in {0, 1}
-    model: nn.Model item, should contain function loss and accept
-    Returns
-    - a (# of training iterations,) numpy array of train_losses evaluated every minibatch
-    - a (# of epochs + 1,) numpy array of test_losses evaluated once at initialization and after each epoch
-    - trained model
-    """
-    model.to(device)
-
-    train_dataloader = DataLoader(train_dataset, **train_dataloader_kwargs)
-    test_dataloader = DataLoader(test_dataset, **test_dataloader_kwargs)
-
-    train_loss, test_loss = train_epochs(model, train_dataloader, test_dataloader, training_kwargs, criterion, device, wandb_instance=wandb_instance)
-
-    return np.array(train_loss), np.array(test_loss), model
-    
-
-import sys
-import warnings
-
-import numpy as np
-
-import torch
-from torch import optim as optim
-
-from torchvision.transforms import functional as F
-
-DEFAULT_IMAGE_SIZE = (256, 256)
-
-
-def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=20, device=None, wandb_instance=None):
-    if device is not None:
-        net.to(device)
-    optimizer = optim.Adam(net.parameters(), lr=lr)
-
-    trainloader = torch.utils.data.DataLoader(
-        dataset, batch_size=batch_size, shuffle=True, num_workers=2
-    )
-    stats_step = (len(dataset) // 10 // batch_size) + 1
-
-    step = 0
-
-    for epoch in range(epochs):
-        if epoch == 0:
-            # на первой эпохе учимся с малым lr, чтобы не сломать pretrain
-            optimizer.lr = lr / 1000
-        else:
-            # дальше постепенно уменьшаем
-            optimizer.lr = lr / 2**epoch
-
-        running_loss = 0.0
-        for i, data in enumerate(trainloader, 0):
-            inputs, anno = data
-            if device is not None:
-                inputs = inputs.to(device)
-                anno = anno.to(device)
-            optimizer.zero_grad()
-            outputs = net(inputs)
-            loss = criterion(outputs, anno)
-            if torch.isnan(loss).any():
-                warnings.warn("nan loss! skip update")
-                print(f"last loss: {loss}")
-                break
-            running_loss += loss
-            if (i % stats_step == 0):
-                print(f"epoch {epoch}|{i}; total loss:{running_loss / stats_step}")
-                print(f"last losse: {loss}")
-
-                if wandb_instance is not None:
-                    wandb_instance.log({
-                        'train': {
-                            'loss': running_loss / stats_step,
-                        },
-                        'lr': optimizer.param_groups[0]['lr']
-                    }, step=step)
-                step += 1
-
-                running_loss = 0.0
-            loss.backward()
-            optimizer.step()
-    print('Finished Training')
-    return net
-
-
-def train_loop(model, criterion, train_dataloader, test_dataloader, device, wandb_instance, epochs=100, step_size=20, gamma=0.5):
-    test_losses = []
-    train_losses = []
-    
-    model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
-    
-    model.eval()
-    total_loss = 0.
-    with torch.no_grad():
-        for x, target in test_dataloader:
-            x, target = x.to(device), target.to(device)
-            pred = model(x)
-            loss = criterion(pred, target)
-            total_loss += loss.item() * x.shape[0]
-       
-        test_losses.append(total_loss / len(test_dataloader.dataset))
-        print(f'Initital test loss: {total_loss / len(test_dataloader.dataset)}')
-        if wandb_instance is not None:
-            wandb_instance.log({
-            'val': {
-                'loss': total_loss / len(test_dataloader.dataset),
-            },
-        }, step=0)
-
-    for i in range(epochs):
-        print(f'Epoch {i+1}:')
-
-        # learning
-        print('training')
-        model.train()
-        total_train_loss = 0.
-        for x, target in train_dataloader:
-            x, target = x.to(device), target.to(device)
-            optimizer.zero_grad()
-            pred = model(x)
-            loss = criterion(pred, target)
-            total_train_loss += loss.item() * x.shape[0]
-            loss.backward()
-            optimizer.step()
-            
-        scheduler.step()
-
-        # evaluation
-        print('evaluating')
-        if (i + 1) % 10 == 0:
-            model.eval()
-            total_test_loss = 0.
-            with torch.no_grad():
-                for x, target in test_dataloader:
-                    x, target = x.to(device), target.to(device)
-                    pred = model(x)
-                    loss = criterion(pred, target)
-                    total_test_loss += loss.item() * x.shape[0]
-            test_losses.append(total_test_loss / len(test_dataloader.dataset))
-            print(f'test loss: {total_test_loss / len(test_dataloader.dataset)}')
-            
-            if wandb_instance is not None:
-                wandb_instance.log({
-                    'val': {
-                        'loss': total_test_loss / len(test_dataloader.dataset),
-                    },
-                }, step=i+1)
-            
-        train_losses.append(total_train_loss / len(train_dataloader.dataset))
-        print(f'train loss: {total_train_loss / len(train_dataloader.dataset)}')
-               
-        if wandb_instance is not None:
-            wandb_instance.log({
-                'train': {
-                    'loss': total_train_loss / len(train_dataloader.dataset),
-                },
-                'lr': scheduler.get_last_lr()[0],
-            }, step=i+1)
-                           
-    return np.array(train_losses), np.array(test_losses), model
-
 
 def train_new(model, criterion, device, train_dataset, test_dataset, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None, eval_every=5):
     test_losses = []
@@ -299,27 +60,6 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
     for epoch in range(training_kwargs['epochs']):
         print(f'Epoch {epoch + 1}:')
 
-        if (epoch + 1) % eval_every == 0:
-        # eval
-            model.eval()
-            with torch.no_grad():
-                loss_sum = 0.
-                for input, target in test_dataloader:
-                    input, target = input.to(device), target.to(device)
-                    pred = model(input)
-                    loss = criterion(pred, target)
-                    loss_sum += loss.item()
-
-                val_loss = loss_sum / len(test_dataset)
-                test_losses.append(val_loss)
-                print(f'Val loss: {val_loss}')
-                if wandb_instance is not None:
-                    wandb_instance.log({
-                        'val': {
-                            'loss': val_loss,
-                        },
-                    }, step=epoch+1)
-
         # train
         model.train()
         loss_sum = 0.
@@ -346,4 +86,141 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
 
         scheduler.step()
 
+        if (epoch + 1) % eval_every == 0:
+        # eval
+            model.eval()
+            with torch.no_grad():
+                loss_sum = 0.
+                for input, target in test_dataloader:
+                    input, target = input.to(device), target.to(device)
+                    pred = model(input)
+                    loss = criterion(pred, target)
+                    loss_sum += loss.item()
+
+                val_loss = loss_sum / len(test_dataset)
+                test_losses.append(val_loss)
+                print(f'Val loss: {val_loss}')
+                if wandb_instance is not None:
+                    wandb_instance.log({
+                        'val': {
+                            'loss': val_loss,
+                        },
+                    }, step=epoch+1)
+
     return np.array(train_losses), np.array(test_losses), model
+
+
+def train_with_trainable_loss(model, criterion, trainable_criterion, device, train_dataset, test_dataset, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None, eval_every=5):
+    test_regular_losses = []
+    train_regular_losses = []
+    test_trainable_losses = []
+    train_trainable_losses = []
+
+    model.to(device)
+    trainable_criterion.to(device)
+    optimizer = optim.Adam(model.parameters(), lr=training_kwargs['lr'])
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, training_kwargs['milestones'], gamma=training_kwargs['gamma'])
+    criterion_optimizer = torch.optim.SGD(trainable_criterion.parameters(), lr=training_kwargs['lr_criterion'])
+
+    train_dataloader = torch.utils.data.DataLoader(train_dataset, **train_dataloader_kwargs)
+    test_dataloader = torch.utils.data.DataLoader(test_dataset, **test_dataloader_kwargs)
+
+    # first eval
+    model.eval()
+    with torch.no_grad():
+        regular_loss_sum = 0.
+        trainable_loss_sum = 0.
+        for input, target in test_dataloader:
+            input, target = input.to(device), target.to(device)
+            pred, feat = model(input)
+
+            regular_loss = criterion(pred, target)
+            trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
+            regular_loss_sum += regular_loss.item()
+            trainable_loss_sum += trainable_loss.item()
+
+        val_regular_loss = regular_loss_sum / len(test_dataset)
+        val_trainable_loss = trainable_loss_sum / len(test_dataset)
+        test_regular_losses.append(val_regular_loss)
+        test_trainable_losses.append(val_trainable_loss)
+
+        print(f'Initial val loss: [regular: {val_regular_loss}, trainable: {val_trainable_loss}')
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'val': {
+                    'regular_loss': val_regular_loss,
+                    'trainable_loss': val_trainable_loss,
+                },
+            }, step=0)
+
+    # loop
+    for epoch in range(training_kwargs['epochs']):
+        print(f'Epoch {epoch + 1}:')
+
+        # train
+        model.train()
+        regular_loss_sum = 0.
+        trainable_loss_sum = 0.
+        for input, target in train_dataloader:
+            input, target = input.to(device), target.to(device)
+            optimizer.zero_grad()
+            pred, feat = model(input)
+            regular_loss = criterion(pred, target)
+            trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
+            regular_loss_sum += regular_loss.item()
+            trainable_loss_sum += trainable_loss.item()
+
+            loss = regular_loss + trainable_loss
+            loss.backward()
+
+            optimizer.step()
+            for param in trainable_criterion.parameters():
+                param.grad.data *= (1. / training_kwargs['weight_criterion'])
+            criterion_optimizer.step()
+
+        train_regular_loss = regular_loss_sum / len(train_dataset)
+        train_trainable_loss = trainable_loss_sum / len(train_dataset)
+        train_regular_losses.append(train_regular_loss)
+        train_trainable_losses.append(train_trainable_loss)
+        print(f'Train loss: [regular: {train_regular_loss} trainable: {train_trainable_loss}]')
+        if wandb_instance is not None:
+            wandb_instance.log({
+                'train': {
+                    'regular_loss': train_regular_loss,
+                    'trainable_loss': train_trainable_loss,
+                },
+                'lr': scheduler.get_last_lr()[0],
+            }, step=epoch+1)
+
+        scheduler.step()
+
+        if (epoch + 1) % eval_every == 0:
+        # eval
+            model.eval()
+            with torch.no_grad():
+                regular_loss_sum = 0.
+                trainable_loss_sum = 0.
+                for input, target in test_dataloader:
+                    input, target = input.to(device), target.to(device)
+                    pred, feat = model(input)
+
+                    regular_loss = criterion(pred, target)
+                    trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
+                    regular_loss_sum += regular_loss.item()
+                    trainable_loss_sum += trainable_loss.item()
+
+                val_regular_loss = regular_loss_sum / len(test_dataset)
+                val_trainable_loss = trainable_loss_sum / len(test_dataset)
+                test_regular_losses.append(val_regular_loss)
+                test_trainable_losses.append(val_trainable_loss)
+
+                print(f'Val loss: [regular: {val_regular_loss}, trainable: {val_trainable_loss}')
+                if wandb_instance is not None:
+                    wandb_instance.log({
+                        'val': {
+                            'regular_loss': val_regular_loss,
+                            'trainable_loss': val_trainable_loss,
+                        },
+                    }, step=epoch+1)
+
+    return np.array(train_regular_losses), np.array(test_regular_losses), np.array(train_trainable_loss), np.array(test_trainable_losses), model
