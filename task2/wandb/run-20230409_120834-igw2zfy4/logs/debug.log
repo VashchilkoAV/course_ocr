@@ -1,0 +1,55 @@
+2023-04-09 12:08:34,715 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Configure stats pid to 258710
+2023-04-09 12:08:34,715 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/settings
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230409_120834-igw2zfy4/logs/debug.log
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230409_120834-igw2zfy4/logs/debug-internal.log
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_init.py:_jupyter_setup():452] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f873c1c7ac0>
+2023-04-09 12:08:34,716 INFO    MainThread:258710 [wandb_init.py:init():546] calling init triggers
+2023-04-09 12:08:34,717 INFO    MainThread:258710 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'train_dataloader_config': {'batch_size': 512, 'shuffle': True, 'drop_last': True, 'num_workers': 8}, 'test_dataloader_config': {'batch_size': 2048, 'shuffle': False, 'num_workers': 8}, 'training_config': {'lr': 0.001, 'epochs': 30, 'milestones': [20, 50, 75], 'gamma': 0.7, 'weight_criterion': 0.5, 'lr_criterion': 0.5}, 'train_transforms': Sequential(
+  (0): Resize(size=(64, 64), interpolation=bilinear, max_size=None, antialias=None)
+), 'val_transforms': Sequential(
+  (0): Resize(size=(64, 64), interpolation=bilinear, max_size=None, antialias=None)
+), 'architecture': 'ResNet12GrayscaleFeatPytorch', 'dataset': 'CASIA Offline Chinese Handwriting', 'criterion': 'Cross Entropy Loss + Centerloss', 'optimizer': 'Adam + SGD(Centerloss)'}
+2023-04-09 12:08:34,717 INFO    MainThread:258710 [wandb_init.py:init():602] starting backend
+2023-04-09 12:08:34,717 INFO    MainThread:258710 [wandb_init.py:init():606] setting up manager
+2023-04-09 12:08:34,719 INFO    MainThread:258710 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-04-09 12:08:34,725 INFO    MainThread:258710 [wandb_init.py:init():613] backend started and connected
+2023-04-09 12:08:34,742 INFO    MainThread:258710 [wandb_run.py:_label_probe_notebook():1204] probe notebook
+2023-04-09 12:08:34,742 INFO    MainThread:258710 [wandb_run.py:_label_probe_notebook():1214] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2023-04-09 12:08:34,742 INFO    MainThread:258710 [wandb_init.py:init():701] updated telemetry
+2023-04-09 12:08:35,021 INFO    MainThread:258710 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-04-09 12:08:35,520 INFO    MainThread:258710 [wandb_run.py:_on_init():2133] communicating current version
+2023-04-09 12:08:35,730 INFO    MainThread:258710 [wandb_run.py:_on_init():2142] got version response upgrade_message: "wandb version 0.14.2 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-04-09 12:08:35,730 INFO    MainThread:258710 [wandb_init.py:init():789] starting run threads in backend
+2023-04-09 12:08:35,871 INFO    MainThread:258710 [wandb_run.py:_console_start():2114] atexit reg
+2023-04-09 12:08:35,871 INFO    MainThread:258710 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-04-09 12:08:35,872 INFO    MainThread:258710 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-04-09 12:08:35,872 INFO    MainThread:258710 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-04-09 12:08:35,873 INFO    MainThread:258710 [wandb_init.py:init():831] run started, returning control to user process
+2023-04-09 12:08:35,879 INFO    MainThread:258710 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 12:08:35,879 INFO    MainThread:258710 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 12:08:40,889 INFO    MainThread:258710 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-09 12:08:40,891 INFO    MainThread:258710 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 12:08:40,892 INFO    MainThread:258710 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 12:08:44,832 INFO    MainThread:258710 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-09 14:28:33,637 INFO    MainThread:258710 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 14:28:33,638 INFO    MainThread:258710 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 14:28:33,647 INFO    MainThread:258710 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-09 14:28:34,998 INFO    MainThread:258710 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 14:28:34,998 INFO    MainThread:258710 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 14:28:35,009 INFO    MainThread:258710 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-09 14:29:45,897 INFO    MainThread:258710 [wandb_run.py:_finish():1854] finishing run vashchilkoav/ocr task 2/igw2zfy4
+2023-04-09 14:29:45,898 ERROR   MainThread:258710 [jupyter.py:save_history():437] Run pip install nbformat to save notebook history
+2023-04-09 14:29:45,898 INFO    MainThread:258710 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 14:29:45,898 INFO    MainThread:258710 [wandb_init.py:_jupyter_teardown():434] cleaning up jupyter logic
+2023-04-09 14:29:45,898 INFO    MainThread:258710 [wandb_run.py:_atexit_cleanup():2083] got exitcode: 0
+2023-04-09 14:29:45,898 INFO    MainThread:258710 [wandb_run.py:_restore():2066] restore
+2023-04-09 14:29:45,898 INFO    MainThread:258710 [wandb_run.py:_restore():2072] restore done
+2023-04-09 14:29:50,657 INFO    MainThread:258710 [wandb_run.py:_footer_history_summary_info():3422] rendering history
+2023-04-09 14:29:50,657 INFO    MainThread:258710 [wandb_run.py:_footer_history_summary_info():3454] rendering summary
+2023-04-09 14:29:50,663 INFO    MainThread:258710 [wandb_run.py:_footer_sync_info():3380] logging synced files

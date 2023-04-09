@@ -4,6 +4,9 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+import torchvision.models as models
+from torchvision.models.resnet import ResNet, BasicBlock
+
 
 class ResidualBlock(nn.Module):
     def __init__(self, kernel_size, in_channels, out_channels, stride, is_proj):
@@ -30,7 +33,7 @@ class ResidualBlock(nn.Module):
         return main + skip
 
 
-class Resnet34GrayscaleFeat(nn.Module):
+class ResNet34GrayscaleFeat(nn.Module):
     """
     Версия resnet, которую надо написать с нуля.
     Сеть-экстрактор признаков, принимает на вход тензор изображений
@@ -71,8 +74,83 @@ class Resnet34GrayscaleFeat(nn.Module):
     def forward(self, x):
         x = self.conv_backbone(x)
         x = self.avgpool(x)
-
+        x = torch.flatten(x, 1)
+        
         y = self.fc(x)
 
         return y, x
         
+class ResNet34GrayscaleFeatPytorch(ResNet):
+    def __init__(self, num_classes=10):
+        super().__init__(BasicBlock, [3, 4, 6, 3])
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        num_ftrs = self.fc.in_features
+        self.fc = nn.Linear(num_ftrs, num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        y = self.fc(x) 
+
+        return y, x
+    
+class ResNet18GrayscaleFeatPytorch(ResNet):
+    def __init__(self, num_classes=10):
+        super().__init__(BasicBlock, [2, 2, 2, 2])
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        num_ftrs = self.fc.in_features
+        self.fc = nn.Linear(num_ftrs, num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        y = self.fc(x) 
+
+        return y, x
+    
+class ResNet12GrayscaleFeatPytorch(ResNet):
+    def __init__(self, num_classes=10):
+        super().__init__(BasicBlock, [1, 1, 1, 1])
+        self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        num_ftrs = self.fc.in_features
+        self.fc = nn.Linear(num_ftrs, num_classes)
+
+    def forward(self, x):
+        x = self.conv1(x)
+        x = self.bn1(x)
+        x = self.relu(x)
+        x = self.maxpool(x)
+
+        x = self.layer1(x)
+        x = self.layer2(x)
+        x = self.layer3(x)
+        x = self.layer4(x)
+
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        y = self.fc(x) 
+
+        return y, x

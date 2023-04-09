@@ -1,0 +1,1 @@
+/home/avashchilko/abbyy10sem/course_ocr/task2/pred.txt

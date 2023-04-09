@@ -1,0 +1,44 @@
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Configure stats pid to 38714
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/settings
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230408_145913-7gcy5pnj/logs/debug.log
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230408_145913-7gcy5pnj/logs/debug-internal.log
+2023-04-08 14:59:13,956 INFO    MainThread:38714 [wandb_init.py:_jupyter_setup():452] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f5919926280>
+2023-04-08 14:59:13,957 INFO    MainThread:38714 [wandb_init.py:init():546] calling init triggers
+2023-04-08 14:59:13,957 INFO    MainThread:38714 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'train_dataloader_config': {'batch_size': 512, 'shuffle': True, 'drop_last': True, 'num_workers': 8}, 'test_dataloader_config': {'batch_size': 2048, 'shuffle': False, 'num_workers': 8}, 'training_config': {'lr': 0.001, 'epochs': 15, 'milestones': [25, 50, 75], 'gamma': 0.7, 'weight_criterion': 100, 'lr_criterion': 0.5}, 'architecture': 'ResNet34GrayscaleFeatPytorch', 'dataset': 'CASIA Offline Chinese Handwriting', 'criterion': 'Cross Entropy Loss + Centerloss', 'optimizer': 'Adam + SGD(Centerloss)'}
+2023-04-08 14:59:13,957 INFO    MainThread:38714 [wandb_init.py:init():602] starting backend
+2023-04-08 14:59:13,957 INFO    MainThread:38714 [wandb_init.py:init():606] setting up manager
+2023-04-08 14:59:13,959 INFO    MainThread:38714 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-04-08 14:59:13,971 INFO    MainThread:38714 [wandb_init.py:init():613] backend started and connected
+2023-04-08 14:59:13,994 INFO    MainThread:38714 [wandb_run.py:_label_probe_notebook():1204] probe notebook
+2023-04-08 14:59:13,994 INFO    MainThread:38714 [wandb_run.py:_label_probe_notebook():1214] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2023-04-08 14:59:13,994 INFO    MainThread:38714 [wandb_init.py:init():701] updated telemetry
+2023-04-08 14:59:14,370 INFO    MainThread:38714 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-04-08 14:59:14,881 INFO    MainThread:38714 [wandb_run.py:_on_init():2133] communicating current version
+2023-04-08 14:59:15,108 INFO    MainThread:38714 [wandb_run.py:_on_init():2142] got version response upgrade_message: "wandb version 0.14.2 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-04-08 14:59:15,108 INFO    MainThread:38714 [wandb_init.py:init():789] starting run threads in backend
+2023-04-08 14:59:15,355 INFO    MainThread:38714 [wandb_run.py:_console_start():2114] atexit reg
+2023-04-08 14:59:15,355 INFO    MainThread:38714 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-04-08 14:59:15,356 INFO    MainThread:38714 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-04-08 14:59:15,356 INFO    MainThread:38714 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-04-08 14:59:15,357 INFO    MainThread:38714 [wandb_init.py:init():831] run started, returning control to user process
+2023-04-08 14:59:15,365 INFO    MainThread:38714 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-08 14:59:15,366 INFO    MainThread:38714 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-08 14:59:15,388 INFO    MainThread:38714 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-08 14:59:28,713 INFO    MainThread:38714 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-08 14:59:28,714 INFO    MainThread:38714 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-08 15:04:21,265 INFO    MainThread:38714 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-08 15:04:21,384 INFO    MainThread:38714 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-08 15:04:21,384 INFO    MainThread:38714 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-08 15:04:26,674 INFO    MainThread:38714 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-08 15:04:27,874 INFO    MainThread:38714 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-08 15:04:27,874 INFO    MainThread:38714 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-08 15:05:15,937 INFO    MainThread:38714 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-08 15:05:15,974 INFO    MainThread:38714 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-08 15:05:15,975 INFO    MainThread:38714 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-08 15:06:35,009 WARNING MsgRouterThr:38714 [router.py:message_loop():77] message_loop has been closed

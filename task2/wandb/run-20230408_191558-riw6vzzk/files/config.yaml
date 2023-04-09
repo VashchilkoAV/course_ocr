@@ -1,0 +1,68 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    framework: torch
+    is_jupyter_run: true
+    is_kaggle_kernel: false
+    python_version: 3.8.10
+    start_time: 1680981358.62123
+    t:
+      1:
+      - 1
+      - 41
+      - 55
+      2:
+      - 1
+      - 41
+      - 55
+      3:
+      - 2
+      - 3
+      - 13
+      - 16
+      - 23
+      4: 3.8.10
+      5: 0.14.0
+      8:
+      - 1
+      - 5
+architecture:
+  desc: null
+  value: ResNet34GrayscaleFeatPytorch
+criterion:
+  desc: null
+  value: Cross Entropy Loss + Centerloss
+dataset:
+  desc: null
+  value: CASIA Offline Chinese Handwriting
+optimizer:
+  desc: null
+  value: Adam + SGD(Centerloss)
+test_dataloader_config:
+  desc: null
+  value:
+    batch_size: 2048
+    num_workers: 8
+    shuffle: false
+train_dataloader_config:
+  desc: null
+  value:
+    batch_size: 512
+    drop_last: true
+    num_workers: 8
+    shuffle: true
+training_config:
+  desc: null
+  value:
+    epochs: 20
+    gamma: 0.7
+    lr: 0.001
+    lr_criterion: 0.5
+    milestones:
+    - 25
+    - 50
+    - 75
+    weight_criterion: 1.0

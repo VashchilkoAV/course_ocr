@@ -1,0 +1,1 @@
+{"val": {"regular_loss": 0.00032217901592789585, "trainable_loss": 0.0021684554197812208}, "_timestamp": 1681028376.8309228, "_runtime": 7687.192019939423, "_step": 30, "train": {"regular_loss": 0.00042469913063934044, "trainable_loss": 0.00023303465352614316}, "lr": 0.0007, "test_accuracy": 0.8614696538286696, "_wandb": {"runtime": 7711}}

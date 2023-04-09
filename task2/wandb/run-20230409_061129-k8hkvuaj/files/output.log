@@ -1,0 +1,85 @@
+/home/avashchilko/abbyy10sem/course_ocr/task2/task2pack/models/loss.py:30: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at ../torch/csrc/utils/python_arg_parser.cpp:1420.)
+  distmat.addmm_(1, -2, x, self.centers.t())
+Initial val loss: [regular: 0.004355111830815686, trainable: 0.2705163929990227]
+Epoch 1:
+Train loss: [regular: 0.014063515018768536 trainable: 0.5116515985704162]
+Epoch 2:
+Train loss: [regular: 0.0043917367339240225 trainable: 0.13229572788953317]
+Epoch 3:
+Train loss: [regular: 0.002267645416830661 trainable: 0.04603025461727561]
+Epoch 4:
+Train loss: [regular: 0.0016675588180472452 trainable: 0.01951862152636335]
+Epoch 5:
+Train loss: [regular: 0.0014002938086593874 trainable: 0.009371073300900461]
+Val loss: [regular: 0.00031158070190787313, trainable: 0.0016367328342296373]
+Epoch 6:
+Train loss: [regular: 0.001437179581967869 trainable: 0.0051026131428111385]
+Epoch 7:
+Train loss: [regular: 0.0010699107709543783 trainable: 0.0027255729509516506]
+Epoch 8:
+Train loss: [regular: 0.0011325330668574927 trainable: 0.0017968120628065758]
+Epoch 9:
+Train loss: [regular: 0.0009510492634432895 trainable: 0.0011647551932217025]
+Epoch 10:
+Train loss: [regular: 0.0009637475181675123 trainable: 0.000902543817840228]
+Val loss: [regular: 0.00026417468386579694, trainable: 0.000295550017304507]
+Epoch 11:
+Train loss: [regular: 0.0008966900588401313 trainable: 0.0007067084938714317]
+Epoch 12:
+Train loss: [regular: 0.0008341254675000065 trainable: 0.0005868205228778495]
+Epoch 13:
+Train loss: [regular: 0.0008751093279485684 trainable: 0.0005337008430848154]
+Epoch 14:
+Train loss: [regular: 0.000802492059963122 trainable: 0.0004513377322350293]
+Epoch 15:
+Train loss: [regular: 0.000767894059866742 trainable: 0.00041678961604425146]
+Val loss: [regular: 0.0002546974420153579, trainable: 0.00023534537117976656]
+Epoch 16:
+Train loss: [regular: 0.0010525003712849635 trainable: 0.00050422163182922]
+Epoch 17:
+Train loss: [regular: 0.0007390830139933904 trainable: 0.0003586242188303976]
+Epoch 18:
+Train loss: [regular: 0.0006552947744885443 trainable: 0.0003049203539562927]
+Epoch 19:
+Train loss: [regular: 0.0006339773075043199 trainable: 0.00028469264670439215]
+Epoch 20:
+Train loss: [regular: 0.0006671057147652642 trainable: 0.00028662512074346795]
+Val loss: [regular: 0.00024744166611436743, trainable: 0.0002590608732607094]
+Epoch 21:
+Train loss: [regular: 0.0005446586658264273 trainable: 0.0002350702933802318]
+Epoch 22:
+Train loss: [regular: 0.0004983945707865135 trainable: 0.00021629999062122362]
+Epoch 23:
+Train loss: [regular: 0.0005769853560696719 trainable: 0.00024995301102269537]
+Epoch 24:
+Train loss: [regular: 0.0005133152235235181 trainable: 0.0002084346844038202]
+Epoch 25:
+Train loss: [regular: 0.0004537099058870151 trainable: 0.00019251151580768416]
+Val loss: [regular: 0.00034257913887649724, trainable: 0.0026021178890367623]
+Epoch 26:
+Train loss: [regular: 0.00044444899246716906 trainable: 0.00018664587453770472]
+Epoch 27:
+Train loss: [regular: 0.0004444098102398796 trainable: 0.00018481109011452327]
+Epoch 28:
+Train loss: [regular: 0.0004043365697808441 trainable: 0.0001727791451266727]
+Epoch 29:
+Train loss: [regular: 0.00040048615807502185 trainable: 0.0001706550149745896]
+Epoch 30:
+Train loss: [regular: 0.00042469913063934044 trainable: 0.00023303465352614316]
+Val loss: [regular: 0.00032217901592789585, trainable: 0.0021684554197812208]
+
+
+
+
+
+
+
+
+
+
+
+
+100%|█████████████████████████████████████████████████████████████████████████████████| 380/380 [00:23<00:00, 15.88it/s]

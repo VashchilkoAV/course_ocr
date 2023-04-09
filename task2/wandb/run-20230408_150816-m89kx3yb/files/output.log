@@ -1,0 +1,61 @@
+/home/avashchilko/abbyy10sem/course_ocr/task2/task2pack/models/loss.py:30: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at ../torch/csrc/utils/python_arg_parser.cpp:1420.)
+  distmat.addmm_(1, -2, x, self.centers.t())
+Initial val loss: [regular: 0.004818021796841947, trainable: 169.4437282426246
+Epoch 1:
+Train loss: [regular: 0.017038944436373254 trainable: 51.03835307869159]
+Epoch 2:
+Train loss: [regular: 0.016947608167467154 trainable: 13.190908448675211]
+Epoch 3:
+Train loss: [regular: 0.01686303136787046 trainable: 4.621395351800078]
+Epoch 4:
+Train loss: [regular: 0.016525753496531168 trainable: 1.9291711012284247]
+Epoch 5:
+Train loss: [regular: 0.016064230153812694 trainable: 0.8689728664549065]
+Val loss: [regular: 0.003948597358185482, trainable: 0.1466408619941386
+Epoch 6:
+Train loss: [regular: 0.015455597269895328 trainable: 0.40298245837248636]
+Epoch 7:
+Train loss: [regular: 0.014860683359330029 trainable: 0.18911372251786795]
+Epoch 8:
+Train loss: [regular: 0.014841210994318496 trainable: 0.09223776225453935]
+Epoch 9:
+Train loss: [regular: 0.014040869183023759 trainable: 0.042440822841611325]
+Epoch 10:
+Train loss: [regular: 0.013397795422040129 trainable: 0.02039281709227731]
+Val loss: [regular: 0.0033304099541119785, trainable: 0.043703377347737486
+Epoch 11:
+Train loss: [regular: 0.012643935508325037 trainable: 0.009964763030026129]
+Epoch 12:
+Train loss: [regular: 0.011887022188527264 trainable: 0.005076759750790796]
+Epoch 13:
+Train loss: [regular: 0.011207776572560656 trainable: 0.0028126819323574625]
+Epoch 14:
+Train loss: [regular: 0.010464331385128907 trainable: 0.0017567481487461454]
+Epoch 15:
+Train loss: [regular: 0.00988867673248817 trainable: 0.0013090892476421505]
+Val loss: [regular: 0.0023724349387565014, trainable: 0.02304538136843924
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100%|█████████████████████████████████████████████████████████████████████████████████| 380/380 [00:41<00:00,  9.19it/s]

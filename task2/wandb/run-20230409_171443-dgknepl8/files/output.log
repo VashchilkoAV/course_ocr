@@ -1,0 +1,34 @@
+/home/avashchilko/abbyy10sem/course_ocr/task2/task2pack/models/loss.py:30: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at ../torch/csrc/utils/python_arg_parser.cpp:1420.)
+  distmat.addmm_(1, -2, x, self.centers.t())
+Initial val: [regular_loss: 0.004350887026771366, trainable_loss: 0.076739758697722, accuracy: 5.7399136530827216e-05]
+Epoch 1:
+Train loss: [regular: 0.007463973710231441 trainable: 0.15181989397094015]
+Epoch 2:
+Train loss: [regular: 0.0007991192896107778 trainable: 0.038123349090206315]
+Val : [regular_loss: 0.0002540232281633176, trainable_loss: 0.005424670172062339, accuracy: 0.8819858239646049]
+Epoch 3:
+Train loss: [regular: 0.0005518375115188757 trainable: 0.013712905670878744]
+Epoch 4:
+Train loss: [regular: 0.0004617943626318037 trainable: 0.006215794948965896]
+Val : [regular_loss: 0.00013317624369362047, trainable_loss: 0.0011135250057519197, accuracy: 0.932014601099271]
+Epoch 5:
+Train loss: [regular: 0.0004017283245075096 trainable: 0.0032570890688544407]
+Epoch 6:
+Train loss: [regular: 0.0003548520273372514 trainable: 0.0019002064942830832]
+Val : [regular_loss: 0.00012160782436326708, trainable_loss: 0.000386351981094622, accuracy: 0.937312386268265]
+Epoch 7:
+Train loss: [regular: 0.0003162726678274255 trainable: 0.0012171669903855808]
+Epoch 8:
+Train loss: [regular: 0.00028431716822554853 trainable: 0.0008459760241485066]
+Val : [regular_loss: 0.00012583455878145195, trainable_loss: 0.000200713805383216, accuracy: 0.9340964832945243]
+Epoch 9:
+Train loss: [regular: 0.00025712268782882367 trainable: 0.0006298311535748899]
+Epoch 10:
+Train loss: [regular: 0.0002336439080221445 trainable: 0.0004947644450586753]
+Val : [regular_loss: 9.908175156888687e-05, trainable_loss: 0.00011877857375525069, accuracy: 0.9473091439927149]
+Epoch 11:
+Train loss: [regular: 0.0002130647717506784 trainable: 0.00040464849179478314]
+Epoch 12:

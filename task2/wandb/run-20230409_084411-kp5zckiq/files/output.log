@@ -1,0 +1,101 @@
+/home/avashchilko/abbyy10sem/course_ocr/task2/task2pack/models/loss.py:30: UserWarning: This overload of addmm_ is deprecated:
+	addmm_(Number beta, Number alpha, Tensor mat1, Tensor mat2)
+Consider using one of the following signatures instead:
+	addmm_(Tensor mat1, Tensor mat2, *, Number beta, Number alpha) (Triggered internally at ../torch/csrc/utils/python_arg_parser.cpp:1420.)
+  distmat.addmm_(1, -2, x, self.centers.t())
+Initial val: [regular_loss: 0.004355111830815686, trainable_loss: 0.13525819649951135, accuracy: 8.066905674602744e-05]
+Epoch 1:
+Train loss: [regular: 0.012680103305972093 trainable: 0.25599788006044727]
+Epoch 2:
+Train loss: [regular: 0.0032812667295890998 trainable: 0.06638588139584557]
+Val : [regular_loss: 0.0005400030978620402, trainable_loss: 0.009081145755491713, accuracy: 0.7524064975822553]
+Epoch 3:
+Train loss: [regular: 0.0018098082883493077 trainable: 0.023418160104847215]
+Epoch 4:
+Train loss: [regular: 0.0013880399385318978 trainable: 0.010122964959155887]
+Val : [regular_loss: 0.0003051757260475859, trainable_loss: 0.001696495393416347, accuracy: 0.84620134065767]
+Epoch 5:
+Train loss: [regular: 0.0011411967463261466 trainable: 0.004919803025212289]
+Epoch 6:
+Train loss: [regular: 0.0010126460473842667 trainable: 0.0026196279175144353]
+Val : [regular_loss: 0.0002823271188398364, trainable_loss: 0.0004975907710585161, accuracy: 0.8564432082083868]
+Epoch 7:
+Train loss: [regular: 0.0009864694020530799 trainable: 0.0015486965710587366]
+Epoch 8:
+Train loss: [regular: 0.0008236462471187103 trainable: 0.0009588190419338157]
+Val : [regular_loss: 0.00021818225706492016, trainable_loss: 0.00019322346295901635, accuracy: 0.8853460004436798]
+Epoch 9:
+Train loss: [regular: 0.0007733643872203873 trainable: 0.000674209834136567]
+Epoch 10:
+Train loss: [regular: 0.0006925584418986399 trainable: 0.0004961754244667005]
+Val : [regular_loss: 0.0004164205687666267, trainable_loss: 0.00015749100810968559, accuracy: 0.789563906181887]
+Epoch 11:
+Train loss: [regular: 0.0007280986721938773 trainable: 0.0004218068500034009]
+Epoch 12:
+Train loss: [regular: 0.0007469322688766065 trainable: 0.0003697221788307628]
+Val : [regular_loss: 0.0002116571398542215, trainable_loss: 8.868343085562153e-05, accuracy: 0.8887403061390704]
+Epoch 13:
+Train loss: [regular: 0.0006021657828025814 trainable: 0.00029509636176059984]
+Epoch 14:
+Train loss: [regular: 0.0007550369690035821 trainable: 0.00031691427251007446]
+Val : [regular_loss: 0.0002826833521771524, trainable_loss: 8.584190108549664e-05, accuracy: 0.8521692995288617]
+Epoch 15:
+Train loss: [regular: 0.000682922837372108 trainable: 0.0002664437299110034]
+Epoch 16:
+Train loss: [regular: 0.0006645594295955933 trainable: 0.00025066111522461257]
+Val : [regular_loss: 0.00021209301349239628, trainable_loss: 0.00016290980465519855, accuracy: 0.8970802455441981]
+Epoch 17:
+Train loss: [regular: 0.0006066539639537955 trainable: 0.0002547554845511747]
+Epoch 18:
+Train loss: [regular: 0.0005067511661790291 trainable: 0.00019635086478544177]
+Val : [regular_loss: 0.00020344974169641316, trainable_loss: 0.00014705824804813413, accuracy: 0.9014953250730288]
+Epoch 19:
+Train loss: [regular: 0.0005145654757551961 trainable: 0.00019066405256805516]
+Epoch 20:
+Train loss: [regular: 0.0005224397725387908 trainable: 0.0001864997523177961]
+Val : [regular_loss: 0.0002462658902017681, trainable_loss: 0.0002291051365564796, accuracy: 0.8934315220544548]
+Epoch 21:
+Train loss: [regular: 0.0004488663543549301 trainable: 0.00016622213942200595]
+Epoch 22:
+Train loss: [regular: 0.00040777072163085046 trainable: 0.0001552362839522759]
+Val : [regular_loss: 0.00021031173395062966, trainable_loss: 0.00012729830794626983, accuracy: 0.9039200507594526]
+Epoch 23:
+Train loss: [regular: 0.00040232791205670236 trainable: 0.00015165603528174244]
+Epoch 24:
+Train loss: [regular: 0.000371957928463313 trainable: 0.00014494408349789465]
+Val : [regular_loss: 0.00022885389880019673, trainable_loss: 0.00029547991127888527, accuracy: 0.9073624476232879]
+Epoch 25:
+Train loss: [regular: 0.0003555936712606271 trainable: 0.00014125024591670583]
+Epoch 26:
+Train loss: [regular: 0.0003341996976435467 trainable: 0.00013630638802706525]
+Val : [regular_loss: 0.00018885259605482598, trainable_loss: 6.649480023559063e-05, accuracy: 0.9074787972243639]
+Epoch 27:
+Train loss: [regular: 0.0003116951529771618 trainable: 0.00013031730573841976]
+Epoch 28:
+Train loss: [regular: 0.0003080301290857226 trainable: 0.00012909398488849334]
+Val : [regular_loss: 0.0003325095349926946, trainable_loss: 0.00041395182376517, accuracy: 0.8547351960645911]
+Epoch 29:
+Train loss: [regular: 0.00028858639661202465 trainable: 0.00012419240232034486]
+Epoch 30:
+Train loss: [regular: 0.00030529365034797626 trainable: 0.00012529608285841764]
+Val : [regular_loss: 0.0002636260494492184, trainable_loss: 0.0002270797122600731, accuracy: 0.8892119098554317]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100%|█████████████████████████████████████████████████████████████████████████████████| 380/380 [00:39<00:00,  9.65it/s]

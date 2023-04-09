@@ -35,7 +35,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset, **train_dataloader_kwargs)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, **test_dataloader_kwargs)
-
+    
     # first eval
     model.eval()
     with torch.no_grad():
@@ -124,18 +124,25 @@ def train_with_trainable_loss(model, criterion, trainable_criterion, device, tra
 
     train_dataloader = torch.utils.data.DataLoader(train_dataset, **train_dataloader_kwargs)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, **test_dataloader_kwargs)
-
+    
     # first eval
     model.eval()
     with torch.no_grad():
         regular_loss_sum = 0.
         trainable_loss_sum = 0.
+        n_good = 0
+        n_all = 0
         for input, target in test_dataloader:
             input, target = input.to(device), target.to(device)
             pred, feat = model(input)
-
+            
             regular_loss = criterion(pred, target)
             trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
+            
+            classes = torch.argmax(pred, dim=1).cpu().numpy()
+            n_good += sum(classes == target.cpu().numpy())
+            n_all += len(classes)
+            
             regular_loss_sum += regular_loss.item()
             trainable_loss_sum += trainable_loss.item()
 
@@ -144,12 +151,13 @@ def train_with_trainable_loss(model, criterion, trainable_criterion, device, tra
         test_regular_losses.append(val_regular_loss)
         test_trainable_losses.append(val_trainable_loss)
 
-        print(f'Initial val loss: [regular: {val_regular_loss}, trainable: {val_trainable_loss}')
+        print(f'Initial val: [regular_loss: {val_regular_loss}, trainable_loss: {val_trainable_loss}, accuracy: {n_good / n_all}]')
         if wandb_instance is not None:
             wandb_instance.log({
                 'val': {
                     'regular_loss': val_regular_loss,
                     'trainable_loss': val_trainable_loss,
+                    'accuracy': n_good / n_all,
                 },
             }, step=0)
 
@@ -164,6 +172,7 @@ def train_with_trainable_loss(model, criterion, trainable_criterion, device, tra
         for input, target in train_dataloader:
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
+            criterion_optimizer.zero_grad()
             pred, feat = model(input)
             regular_loss = criterion(pred, target)
             trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
@@ -200,12 +209,19 @@ def train_with_trainable_loss(model, criterion, trainable_criterion, device, tra
             with torch.no_grad():
                 regular_loss_sum = 0.
                 trainable_loss_sum = 0.
+                n_good = 0
+                n_all = 0
                 for input, target in test_dataloader:
                     input, target = input.to(device), target.to(device)
                     pred, feat = model(input)
-
+                    
                     regular_loss = criterion(pred, target)
                     trainable_loss = trainable_criterion(feat, target) * training_kwargs['weight_criterion']
+                    
+                    classes = torch.argmax(pred, dim=1).cpu().numpy()
+                    n_good += sum(classes == target.cpu().numpy())
+                    n_all += len(classes)
+                    
                     regular_loss_sum += regular_loss.item()
                     trainable_loss_sum += trainable_loss.item()
 
@@ -214,13 +230,14 @@ def train_with_trainable_loss(model, criterion, trainable_criterion, device, tra
                 test_regular_losses.append(val_regular_loss)
                 test_trainable_losses.append(val_trainable_loss)
 
-                print(f'Val loss: [regular: {val_regular_loss}, trainable: {val_trainable_loss}')
+                print(f'Val : [regular_loss: {val_regular_loss}, trainable_loss: {val_trainable_loss}, accuracy: {n_good / n_all}]')
                 if wandb_instance is not None:
                     wandb_instance.log({
                         'val': {
                             'regular_loss': val_regular_loss,
                             'trainable_loss': val_trainable_loss,
+                            'accuracy': n_good / n_all,
                         },
                     }, step=epoch+1)
 
-    return np.array(train_regular_losses), np.array(test_regular_losses), np.array(train_trainable_loss), np.array(test_trainable_losses), model
+    return np.array(train_regular_losses), np.array(test_regular_losses), np.array(train_trainable_losses), np.array(test_trainable_losses), model

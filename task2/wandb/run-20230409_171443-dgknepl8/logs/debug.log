@@ -1,0 +1,39 @@
+2023-04-09 17:14:43,912 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Configure stats pid to 317704
+2023-04-09 17:14:43,912 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/.config/wandb/settings
+2023-04-09 17:14:43,912 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Loading settings from /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/settings
+2023-04-09 17:14:43,912 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Loading settings from environment variables: {}
+2023-04-09 17:14:43,912 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Applying setup settings: {'_disable_service': False}
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_setup.py:_flush():76] Inferring run settings from compute environment: {'program': '<python with no main file>'}
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_init.py:_log_setup():506] Logging user logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230409_171443-dgknepl8/logs/debug.log
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_init.py:_log_setup():507] Logging internal logs to /home/avashchilko/abbyy10sem/course_ocr/task2/wandb/run-20230409_171443-dgknepl8/logs/debug-internal.log
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_init.py:_jupyter_setup():452] configuring jupyter hooks <wandb.sdk.wandb_init._WandbInit object at 0x7f6d2a3688e0>
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_init.py:init():546] calling init triggers
+2023-04-09 17:14:43,913 INFO    MainThread:317704 [wandb_init.py:init():552] wandb.init called with sweep_config: {}
+config: {'train_dataloader_config': {'batch_size': 512, 'shuffle': True, 'drop_last': True, 'num_workers': 8}, 'test_dataloader_config': {'batch_size': 2048, 'shuffle': False, 'num_workers': 8}, 'training_config': {'lr': 0.001, 'epochs': 20, 'milestones': [40, 50, 75], 'gamma': 0.7, 'weight_criterion': 0.3, 'lr_criterion': 0.5}, 'train_transforms': Sequential(
+  (0): Resize(size=(128, 128), interpolation=bilinear, max_size=None, antialias=None)
+), 'val_transforms': Sequential(
+  (0): Resize(size=(128, 128), interpolation=bilinear, max_size=None, antialias=None)
+), 'architecture': 'ResNet12GrayscaleFeatPytorch', 'dataset': 'CASIA Offline Chinese Handwriting', 'criterion': 'Cross Entropy Loss + Centerloss', 'optimizer': 'Adam + SGD(Centerloss)'}
+2023-04-09 17:14:43,914 INFO    MainThread:317704 [wandb_init.py:init():602] starting backend
+2023-04-09 17:14:43,914 INFO    MainThread:317704 [wandb_init.py:init():606] setting up manager
+2023-04-09 17:14:43,915 INFO    MainThread:317704 [backend.py:_multiprocessing_setup():106] multiprocessing start_methods=fork,spawn,forkserver, using: spawn
+2023-04-09 17:14:43,920 INFO    MainThread:317704 [wandb_init.py:init():613] backend started and connected
+2023-04-09 17:14:43,931 INFO    MainThread:317704 [wandb_run.py:_label_probe_notebook():1204] probe notebook
+2023-04-09 17:14:43,931 INFO    MainThread:317704 [wandb_run.py:_label_probe_notebook():1214] Unable to probe notebook: 'NoneType' object has no attribute 'get'
+2023-04-09 17:14:43,931 INFO    MainThread:317704 [wandb_init.py:init():701] updated telemetry
+2023-04-09 17:14:44,048 INFO    MainThread:317704 [wandb_init.py:init():741] communicating run to backend with 60.0 second timeout
+2023-04-09 17:14:44,538 INFO    MainThread:317704 [wandb_run.py:_on_init():2133] communicating current version
+2023-04-09 17:14:44,724 INFO    MainThread:317704 [wandb_run.py:_on_init():2142] got version response upgrade_message: "wandb version 0.14.2 is available!  To upgrade, please run:\n $ pip install wandb --upgrade"
+
+2023-04-09 17:14:44,724 INFO    MainThread:317704 [wandb_init.py:init():789] starting run threads in backend
+2023-04-09 17:14:44,856 INFO    MainThread:317704 [wandb_run.py:_console_start():2114] atexit reg
+2023-04-09 17:14:44,856 INFO    MainThread:317704 [wandb_run.py:_redirect():1969] redirect: SettingsConsole.WRAP_RAW
+2023-04-09 17:14:44,856 INFO    MainThread:317704 [wandb_run.py:_redirect():2034] Wrapping output streams.
+2023-04-09 17:14:44,863 INFO    MainThread:317704 [wandb_run.py:_redirect():2059] Redirects installed.
+2023-04-09 17:14:44,870 INFO    MainThread:317704 [wandb_init.py:init():831] run started, returning control to user process
+2023-04-09 17:14:44,885 INFO    MainThread:317704 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 17:14:44,885 INFO    MainThread:317704 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 17:14:44,893 INFO    MainThread:317704 [wandb_init.py:_resume_backend():422] resuming backend
+2023-04-09 17:14:44,895 INFO    MainThread:317704 [jupyter.py:save_ipynb():373] not saving jupyter notebook
+2023-04-09 17:14:44,895 INFO    MainThread:317704 [wandb_init.py:_pause_backend():417] pausing backend
+2023-04-09 17:14:44,902 INFO    MainThread:317704 [wandb_init.py:_resume_backend():422] resuming backend
