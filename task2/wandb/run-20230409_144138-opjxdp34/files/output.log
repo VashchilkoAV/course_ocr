@@ -69,3 +69,123 @@ Train loss: [regular: 7.068458376757224e-05 trainable: 0.000110411884988256]
 Epoch 26:
 Train loss: [regular: 6.62705935819679e-05 trainable: 0.00010519177031682276]
 Val : [regular_loss: 8.939550863988007e-05, trainable_loss: 2.8355128734307508e-05, accuracy: 0.9526379557219958]
+Epoch 27:
+Train loss: [regular: 6.195864879416293e-05 trainable: 0.00010023085359719837]
+Epoch 28:
+Train loss: [regular: 5.7839817536020374e-05 trainable: 9.574629679469074e-05]
+Val : [regular_loss: 9.315851927031057e-05, trainable_loss: 2.6309841520527464e-05, accuracy: 0.9507701567927224]
+Epoch 29:
+Train loss: [regular: 5.4411649842783214e-05 trainable: 9.166536363691895e-05]
+Epoch 30:
+Train loss: [regular: 5.111369477299057e-05 trainable: 8.793739660050939e-05]
+Val : [regular_loss: 9.90190510349556e-05, trainable_loss: 2.505997314390418e-05, accuracy: 0.9476302688916848]
+Epoch 31:
+Train loss: [regular: 4.8196360666445044e-05 trainable: 8.441584317720309e-05]
+Epoch 32:
+Train loss: [regular: 4.5002567369380956e-05 trainable: 8.109491471647977e-05]
+Val : [regular_loss: 9.466518545716872e-05, trainable_loss: 2.334645967995311e-05, accuracy: 0.9505886514150439]
+Epoch 33:
+Train loss: [regular: 4.295806154621481e-05 trainable: 7.817672527673222e-05]
+Epoch 34:
+Train loss: [regular: 4.0533777219215825e-05 trainable: 7.534912785000074e-05]
+Val : [regular_loss: 9.25743087009582e-05, trainable_loss: 2.05898015236296e-05, accuracy: 0.9520918882609458]
+Epoch 35:
+Train loss: [regular: 3.846813579412721e-05 trainable: 7.269398435680144e-05]
+Epoch 36:
+Train loss: [regular: 3.644000634770113e-05 trainable: 7.025624073211573e-05]
+Val : [regular_loss: 9.398423857500635e-05, trainable_loss: 1.9732879389571582e-05, accuracy: 0.9516249385286274]
+Epoch 37:
+Train loss: [regular: 3.477663148655773e-05 trainable: 6.7919115904829e-05]
+Epoch 38:
+Train loss: [regular: 3.3409218346525645e-05 trainable: 6.585595344059282e-05]
+Val : [regular_loss: 9.586691591283237e-05, trainable_loss: 1.878688811995844e-05, accuracy: 0.951153334812266]
+Epoch 39:
+Train loss: [regular: 3.1755107073072336e-05 trainable: 6.371096984366418e-05]
+Epoch 40:
+Train loss: [regular: 3.018359947923704e-05 trainable: 6.172579230541031e-05]
+Val : [regular_loss: 9.335666419774354e-05, trainable_loss: 1.7008492309074784e-05, accuracy: 0.9523338954311839]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100%|█████████████████████████████████████████████████████████████████████████████████| 380/380 [02:52<00:00,  2.20it/s]

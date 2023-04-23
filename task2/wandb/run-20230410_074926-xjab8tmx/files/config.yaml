@@ -8,7 +8,7 @@ _wandb:
     is_jupyter_run: true
     is_kaggle_kernel: false
     python_version: 3.8.10
-    start_time: 1681051298.985189
+    start_time: 1681112966.508479
     t:
       1:
       - 1
@@ -31,7 +31,7 @@ _wandb:
       - 5
 architecture:
   desc: null
-  value: ResNet12GrayscaleFeatPytorch
+  value: ResNet18GrayscaleFeatPytorch
 criterion:
   desc: null
   value: Cross Entropy Loss + Centerloss
@@ -61,15 +61,15 @@ train_transforms:
 training_config:
   desc: null
   value:
-    epochs: 40
+    epochs: 30
     gamma: 0.7
     lr: 0.001
     lr_criterion: 0.5
     milestones:
-    - 40
+    - 30
     - 50
     - 75
-    weight_criterion: 0.3
+    weight_criterion: 0.5
 val_transforms:
   desc: null
   value: "Sequential(\n  (0): Resize(size=(128, 128), interpolation=bilinear, max_size=None,\
