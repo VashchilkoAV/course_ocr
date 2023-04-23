@@ -1,0 +1,27 @@
+diff --git a/task3/wandb/debug-internal.log b/task3/wandb/debug-internal.log
+index cfef98e..ad2a224 120000
+--- a/task3/wandb/debug-internal.log
++++ b/task3/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8/logs/debug-internal.log
+\ No newline at end of file
++run-20230423_105454-rfpcnzi4/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/task3/wandb/debug.log b/task3/wandb/debug.log
+index 0ab982d..038736b 120000
+--- a/task3/wandb/debug.log
++++ b/task3/wandb/debug.log
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8/logs/debug.log
+\ No newline at end of file
++run-20230423_105454-rfpcnzi4/logs/debug.log
+\ No newline at end of file
+diff --git a/task3/wandb/latest-run b/task3/wandb/latest-run
+index 897f23b..3b9a497 120000
+--- a/task3/wandb/latest-run
++++ b/task3/wandb/latest-run
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8
+\ No newline at end of file
++run-20230423_105454-rfpcnzi4
+\ No newline at end of file

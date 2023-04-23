@@ -1,0 +1,213 @@
+diff --git a/task3/wandb/debug-internal.log b/task3/wandb/debug-internal.log
+index cfef98e..4b6875d 120000
+--- a/task3/wandb/debug-internal.log
++++ b/task3/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8/logs/debug-internal.log
+\ No newline at end of file
++run-20230423_105910-1zn7xjyu/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/task3/wandb/debug.log b/task3/wandb/debug.log
+index 0ab982d..4b104f7 120000
+--- a/task3/wandb/debug.log
++++ b/task3/wandb/debug.log
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8/logs/debug.log
+\ No newline at end of file
++run-20230423_105910-1zn7xjyu/logs/debug.log
+\ No newline at end of file
+diff --git a/task3/wandb/latest-run b/task3/wandb/latest-run
+index 897f23b..a86fa1e 120000
+--- a/task3/wandb/latest-run
++++ b/task3/wandb/latest-run
+@@ -1 +1 @@
+-run-20230423_103033-qli14wa8
+\ No newline at end of file
++run-20230423_105910-1zn7xjyu
+\ No newline at end of file
+diff --git a/task3/wandb_test.ipynb b/task3/wandb_test.ipynb
+index 0ecb8f6..757b283 100644
+--- a/task3/wandb_test.ipynb
++++ b/task3/wandb_test.ipynb
+@@ -4,43 +4,19 @@
+    "cell_type": "code",
+    "execution_count": 1,
+    "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "import wandb\n",
+-    "import os"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 29,
+-   "metadata": {},
+    "outputs": [
+     {
+-     "data": {
+-      "application/javascript": "var kernel = IPython.notebook.kernel;\nvar thename = window.document.getElementById(\"notebook_name\").innerHTML;\nvar command = \"theNotebook = \" + \"'\"+thename+\"'\";\nkernel.execute(command);\n",
+-      "text/plain": [
+-       "<IPython.core.display.Javascript object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
++     "name": "stderr",
++     "output_type": "stream",
++     "text": [
++      "/usr/lib/python3/dist-packages/requests/__init__.py:89: RequestsDependencyWarning: urllib3 (1.26.15) or chardet (3.0.4) doesn't match a supported version!\n",
++      "  warnings.warn(\"urllib3 ({}) or chardet ({}) doesn't match a supported \"\n"
++     ]
+     }
+    ],
+    "source": [
+-    "%%javascript\n",
+-    "var kernel = IPython.notebook.kernel;\n",
+-    "var thename = window.document.getElementById(\"notebook_name\").innerHTML;\n",
+-    "var command = \"theNotebook = \" + \"'\"+thename+\"'\";\n",
+-    "kernel.execute(command);"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 30,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "notebooktheNotebook = os.getcwd() + '/' + theNotebook + '.ipynb'"
++    "import wandb\n",
++    "import os"
+    ]
+   },
+   {
+@@ -52,13 +28,26 @@
+      "name": "stderr",
+      "output_type": "stream",
+      "text": [
+-      "\u001b[34m\u001b[1mwandb\u001b[0m: Currently logged in as: \u001b[33mvashchilkoav\u001b[0m. Use \u001b[1m`wandb login --relogin`\u001b[0m to force relogin\n"
++      "wandb: Currently logged in as: vashchilkoav. Use `wandb login --relogin` to force relogin\n"
+      ]
+     },
+     {
+      "data": {
+       "text/html": [
+-       "Tracking run with wandb version 0.15.0"
++       "wandb version 0.15.0 is available!  To upgrade, please run:\n",
++       " $ pip install wandb --upgrade"
++      ],
++      "text/plain": [
++       "<IPython.core.display.HTML object>"
++      ]
++     },
++     "metadata": {},
++     "output_type": "display_data"
++    },
++    {
++     "data": {
++      "text/html": [
++       "Tracking run with wandb version 0.14.0"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -70,7 +59,7 @@
+     {
+      "data": {
+       "text/html": [
+-       "Run data is saved locally in <code>/Users/alexander/computerScience/phystech/10sem/docProcessing/course_ocr/task3/wandb/run-20230423_134533-xytfiwnp</code>"
++       "Run data is saved locally in <code>/home/avashchilko/abbyy10sem/course_ocr/task3/wandb/run-20230423_105811-5yfjb72i</code>"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -82,7 +71,7 @@
+     {
+      "data": {
+       "text/html": [
+-       "Syncing run <strong><a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/xytfiwnp' target=\"_blank\">test 11 code save</a></strong> to <a href='https://wandb.ai/vashchilkoav/ocr%20task%203' target=\"_blank\">Weights & Biases</a> (<a href='https://wandb.me/run' target=\"_blank\">docs</a>)<br/>"
++       "Syncing run <strong><a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/5yfjb72i' target=\"_blank\">test 3 code save</a></strong> to <a href='https://wandb.ai/vashchilkoav/ocr%20task%203' target=\"_blank\">Weights & Biases</a> (<a href='https://wandb.me/run' target=\"_blank\">docs</a>)<br/>"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -106,7 +95,7 @@
+     {
+      "data": {
+       "text/html": [
+-       " View run at <a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/xytfiwnp' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%203/runs/xytfiwnp</a>"
++       " View run at <a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/5yfjb72i' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%203/runs/5yfjb72i</a>"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -127,10 +116,26 @@
+      "metadata": {},
+      "output_type": "display_data"
+     },
++    {
++     "name": "stderr",
++     "output_type": "stream",
++     "text": [
++      "Widget Javascript not detected.  It may not be installed or enabled properly.\n"
++     ]
++    },
++    {
++     "data": {
++      "application/vnd.jupyter.widget-view+json": {
++       "model_id": "b6058274645141158cf986558e7801a9"
++      }
++     },
++     "metadata": {},
++     "output_type": "display_data"
++    },
+     {
+      "data": {
+       "text/html": [
+-       " View run <strong style=\"color:#cdcd00\">test 11 code save</strong> at: <a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/xytfiwnp' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%203/runs/xytfiwnp</a><br/>Synced 6 W&B file(s), 0 media file(s), 1 artifact file(s) and 0 other file(s)"
++       " View run <strong style=\"color:#cdcd00\">test 3 code save</strong> at: <a href='https://wandb.ai/vashchilkoav/ocr%20task%203/runs/5yfjb72i' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%203/runs/5yfjb72i</a><br/>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 1 other file(s)"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -142,7 +147,7 @@
+     {
+      "data": {
+       "text/html": [
+-       "Find logs at: <code>./wandb/run-20230423_134533-xytfiwnp/logs</code>"
++       "Find logs at: <code>./wandb/run-20230423_105811-5yfjb72i/logs</code>"
+       ],
+       "text/plain": [
+        "<IPython.core.display.HTML object>"
+@@ -153,14 +158,14 @@
+     }
+    ],
+    "source": [
+-    "os.environ['WANDB_NOTEBOOK_NAME'] = 'wandb_test.ipynb'\n",
++    "#os.environ['WANDB_NOTEBOOK_NAME'] = 'wandb_test.ipynb'\n",
+     "wandb.init(\n",
+     "    project='ocr task 3',\n",
+-    "    name='test 12 code save',\n",
+-    "    settings=wandb.Settings(code_dir=\"./task3pack/\"),\n",
++    "    name='test 3 code save',\n",
++    "    #settings=wandb.Settings(code_dir=\"./task3pack/\"),\n",
+     ")\n",
+     "\n",
+-    "#wandb.run.log_code('./task3pack/')\n",
++    "wandb.run.log_code('./task3pack/')\n",
+     "wandb.finish()"
+    ]
+   },
+@@ -174,7 +179,7 @@
+  ],
+  "metadata": {
+   "kernelspec": {
+-   "display_name": "ml",
++   "display_name": "Python 3",
+    "language": "python",
+    "name": "python3"
+   },
+@@ -188,7 +193,7 @@
+    "name": "python",
+    "nbconvert_exporter": "python",
+    "pygments_lexer": "ipython3",
+-   "version": "3.11.2"
++   "version": "3.8.10"
+   }
+  },
+  "nbformat": 4,
