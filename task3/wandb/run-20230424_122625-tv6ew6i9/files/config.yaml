@@ -1,0 +1,69 @@
+wandb_version: 1
+
+_wandb:
+  desc: null
+  value:
+    cli_version: 0.14.0
+    framework: torch
+    is_jupyter_run: true
+    is_kaggle_kernel: false
+    python_version: 3.8.10
+    start_time: 1682339185.85447
+    t:
+      1:
+      - 1
+      - 41
+      - 55
+      2:
+      - 1
+      - 41
+      - 55
+      3:
+      - 13
+      - 16
+      - 23
+      4: 3.8.10
+      5: 0.14.0
+      8:
+      - 1
+      - 5
+architecture:
+  desc: null
+  value: torch unet
+criterion:
+  desc: null
+  value: BCELoss
+dataset:
+  desc: null
+  value: MIDV-500
+image_size:
+  desc: null
+  value:
+  - 512
+  - 512
+optimizer:
+  desc: null
+  value: Adam
+test_dataloader_config:
+  desc: null
+  value:
+    batch_size: 8
+    num_workers: 2
+    shuffle: false
+train_dataloader_config:
+  desc: null
+  value:
+    batch_size: 8
+    num_workers: 2
+    shuffle: true
+training_config:
+  desc: null
+  value:
+    epochs: 30
+    gamma: 0.7
+    lr: 0.001
+    milestones:
+    - 25
+    - 50
+    - 75
+    step_size: 25

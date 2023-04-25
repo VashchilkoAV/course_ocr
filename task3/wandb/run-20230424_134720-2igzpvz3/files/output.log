@@ -1,0 +1,41 @@
+Initial val loss: 0.11195172801396613
+Epoch 1:
+Train loss: 0.03365270692481581
+Epoch 2:
+Train loss: 0.028400392569904405
+Epoch 3:
+Train loss: 0.026575133249890512
+Epoch 4:
+Train loss: 0.0253538801594761
+Epoch 5:
+Train loss: 0.024939709701916068
+Val loss: 0.02606096818260803
+Epoch 6:
+Train loss: 0.024301827231517976
+Epoch 7:
+Train loss: 0.02351063843866997
+Epoch 8:
+Train loss: 0.022917181051015693
+Epoch 9:
+Train loss: 0.02231673529992501
+Epoch 10:
+Train loss: 0.02165205492903062
+Val loss: 0.02256701035158975
+0it [00:00, ?it/s]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100it [00:32,  3.09it/s]

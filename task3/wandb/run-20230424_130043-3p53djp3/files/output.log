@@ -1,0 +1,6 @@
+Initial val loss: 0.360784792638087
+Epoch 1:
+Train loss: 0.013418396423018076
+Epoch 2:
+wandb: ERROR Dropped streaming file chunk (see wandb/debug-internal.log)
+wandb: ERROR Dropped streaming file chunk (see wandb/debug-internal.log)

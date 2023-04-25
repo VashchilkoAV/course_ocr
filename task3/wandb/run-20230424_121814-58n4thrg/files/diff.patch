@@ -1,0 +1,3224 @@
+diff --git a/task1/unet.ipynb b/task1/unet.ipynb
+index 770af8e..9dafe1f 100644
+--- a/task1/unet.ipynb
++++ b/task1/unet.ipynb
+@@ -677,7 +677,7 @@
+  ],
+  "metadata": {
+   "kernelspec": {
+-   "display_name": "ml",
++   "display_name": "Python 3",
+    "language": "python",
+    "name": "python3"
+   },
+@@ -691,7 +691,7 @@
+    "name": "python",
+    "nbconvert_exporter": "python",
+    "pygments_lexer": "ipython3",
+-   "version": "3.11.2"
++   "version": "3.8.10"
+   }
+  },
+  "nbformat": 4,
+diff --git a/task3/task3centernet.ipynb b/task3/task3centernet.ipynb
+deleted file mode 100644
+index f16965a..0000000
+--- a/task3/task3centernet.ipynb
++++ /dev/null
+@@ -1,2727 +0,0 @@
+-{
+- "cells": [
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Dataset preparation"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 12,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "#pip install -e .\n",
+-    "#pip install  abbyy_course_cvdl_t2\n",
+-    "\n",
+-    "from pathlib import Path\n",
+-    "from course_ocr_t1.data import MidvPackage\n",
+-    "from tqdm import tqdm\n",
+-    "from matplotlib import pyplot as plt\n",
+-    "import numpy as np\n",
+-    "import wandb\n",
+-    "\n",
+-    "import torch\n",
+-    "\n",
+-    "from task1pack.utils.data import HeatmapDataset"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 13,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "data": {
+-      "text/plain": [
+-       "<torch._C.Generator at 0x7fa6767e3350>"
+-      ]
+-     },
+-     "execution_count": 13,
+-     "metadata": {},
+-     "output_type": "execute_result"
+-    }
+-   ],
+-   "source": [
+-    "torch.manual_seed(42)"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 14,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "data": {
+-      "text/plain": [
+-       "(50, course_ocr_t1.data.MidvPackage)"
+-      ]
+-     },
+-     "execution_count": 14,
+-     "metadata": {},
+-     "output_type": "execute_result"
+-    }
+-   ],
+-   "source": [
+-    "DATASET_PATH = Path() / '..' / '..' / 'data' / 'midv500_compressed'\n",
+-    "#DATASET_PATH = Path() / '..' / '..' / '..' / '..' / '..' / '..' / 'Downloads' / 'midv500_compressed'\n",
+-    "assert DATASET_PATH.exists(), DATASET_PATH.absolute()\n",
+-    "\n",
+-    "# Собираем список пакетов (MidvPackage) \n",
+-    "data_packs = MidvPackage.read_midv500_dataset(DATASET_PATH)\n",
+-    "len(data_packs), type(data_packs[0])"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 15,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "10750 4250\n",
+-      "torch.Size([3, 416, 416]) torch.Size([4, 2])\n"
+-     ]
+-    }
+-   ],
+-   "source": [
+-    "from torchvision.transforms import Resize, Compose, ToTensor\n",
+-    "\n",
+-    "IMAGE_SIZE = [416, 416]\n",
+-    "HEATMAP_SIZE = [104, 104]\n",
+-    "\n",
+-    "transforms = Compose([\n",
+-    "    ToTensor(),\n",
+-    "    Resize(IMAGE_SIZE),\n",
+-    "])\n",
+-    "\n",
+-    "train_dataset = HeatmapDataset(data_packs=data_packs, split='train', transforms=transforms, output_size=HEATMAP_SIZE)\n",
+-    "test_dataset = HeatmapDataset(data_packs=data_packs, split='test', transforms=transforms, output_size=HEATMAP_SIZE)\n",
+-    "\n",
+-    "print(len(train_dataset), len(test_dataset))\n",
+-    "print(train_dataset[0][0].shape, train_dataset[0][1].shape)"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "## Experiment"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 16,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "from task1pack.models.centernet import CenterNet\n",
+-    "\n",
+-    "from task1pack.utils.train import train_model, show_train_plots, train_old\n",
+-    "\n",
+-    "from torch.nn import MSELoss"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 17,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/torchvision/models/_utils.py:208: UserWarning: The parameter 'pretrained' is deprecated since 0.13 and may be removed in the future, please use 'weights' instead.\n",
+-      "  warnings.warn(\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/torchvision/models/_utils.py:223: UserWarning: Arguments other than a weight enum or `None` for 'weights' are deprecated since 0.13 and may be removed in the future. The current behavior is equivalent to passing `weights=ResNet34_Weights.IMAGENET1K_V1`. You can also use `weights=ResNet34_Weights.DEFAULT` to get the most up-to-date weights.\n",
+-      "  warnings.warn(msg)\n"
+-     ]
+-    }
+-   ],
+-   "source": [
+-    "centernet = CenterNet(pretrained=\"resnet34\", head_kwargs={'c_classes': 4})"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 18,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "data": {
+-      "text/html": [
+-       "Tracking run with wandb version 0.14.0"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "Run data is saved locally in <code>/home/avashchilko/abbyy10sem/course_ocr/task1/wandb/run-20230326_175413-xefv9ga9</code>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "Syncing run <strong><a href='https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9' target=\"_blank\">CenterNet 100 epochs with lr=0.001 old train</a></strong> to <a href='https://wandb.ai/vashchilkoav/ocr%20task%201' target=\"_blank\">Weights & Biases</a> (<a href='https://wandb.me/run' target=\"_blank\">docs</a>)<br/>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       " View project at <a href='https://wandb.ai/vashchilkoav/ocr%20task%201' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%201</a>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       " View run at <a href='https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9</a>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "<button onClick=\"this.nextSibling.style.display='block';this.style.display='none';\">Display W&B run</button><iframe src='https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9?jupyter=true' style='border:none;width:100%;height:420px;display:none;'></iframe>"
+-      ],
+-      "text/plain": [
+-       "<wandb.sdk.wandb_run.Run at 0x7fa65b203b80>"
+-      ]
+-     },
+-     "execution_count": 18,
+-     "metadata": {},
+-     "output_type": "execute_result"
+-    }
+-   ],
+-   "source": [
+-    "model_name = 'CenterNet'\n",
+-    "\n",
+-    "train_dataloader_config = {\n",
+-    "    'batch_size': 8,\n",
+-    "    'shuffle': True,\n",
+-    "}\n",
+-    "\n",
+-    "test_dataloader_config = {\n",
+-    "    'batch_size': 8,\n",
+-    "    'shuffle': False,\n",
+-    "}\n",
+-    "\n",
+-    "training_config = {\n",
+-    "    'lr': 1e-3,\n",
+-    "    'epochs': 100,\n",
+-    "    'step_size': 15,\n",
+-    "    'gamma': 0.1,\n",
+-    "}\n",
+-    "\n",
+-    "device = 'cuda:0'\n",
+-    "criterion = MSELoss()\n",
+-    "\n",
+-    "wandb.init(\n",
+-    "    project='ocr task 1',\n",
+-    "    name='{} {} epochs with lr={} old train'.format(model_name, training_config['epochs'], training_config['lr']),\n",
+-    "    config={\n",
+-    "        'train_dataloader_config': train_dataloader_config,\n",
+-    "        'test_dataloader_config': test_dataloader_config,\n",
+-    "        'training_config': training_config,\n",
+-    "\n",
+-    "    \"architecture\": model_name,\n",
+-    "    \"dataset\": \"MIDV-500\",\n",
+-    "    \"criterion\": \"MSELoss\",\n",
+-    "    \"optimizer\": \"Adam\",\n",
+-    "    \"image_size\": IMAGE_SIZE,\n",
+-    "    \"heatmap_size\": HEATMAP_SIZE,    \n",
+-    "    }\n",
+-    ")"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 19,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 0|0; total loss:0.0014392087468877435\n",
+-      "last losse: 0.19429318606853485\n",
+-      "epoch 0|135; total loss:0.1468890905380249\n",
+-      "last losse: 0.09802792966365814\n",
+-      "epoch 0|270; total loss:0.03858471289277077\n",
+-      "last losse: 0.050216227769851685\n",
+-      "epoch 0|405; total loss:0.02933795563876629\n",
+-      "last losse: 0.011523550376296043\n",
+-      "epoch 0|540; total loss:0.028992241248488426\n",
+-      "last losse: 0.009125025942921638\n",
+-      "epoch 0|675; total loss:0.031462639570236206\n",
+-      "last losse: 0.008906849659979343\n",
+-      "epoch 0|810; total loss:0.029417959973216057\n",
+-      "last losse: 0.019738124683499336\n",
+-      "epoch 0|945; total loss:0.025830233469605446\n",
+-      "last losse: 0.012243866920471191\n",
+-      "epoch 0|1080; total loss:0.03182153031229973\n",
+-      "last losse: 0.029011046513915062\n",
+-      "epoch 0|1215; total loss:0.04105750843882561\n",
+-      "last losse: 0.07064193487167358\n",
+-      "epoch 1|0; total loss:0.0004324592009652406\n",
+-      "last losse: 0.05838199332356453\n",
+-      "epoch 1|135; total loss:0.04620088264346123\n",
+-      "last losse: 0.017601963132619858\n",
+-      "epoch 1|270; total loss:0.03341924026608467\n",
+-      "last losse: 0.04064064100384712\n",
+-      "epoch 1|405; total loss:0.028273142874240875\n",
+-      "last losse: 0.0597475990653038\n",
+-      "epoch 1|540; total loss:0.022311823442578316\n",
+-      "last losse: 0.008231895044445992\n",
+-      "epoch 1|675; total loss:0.027773816138505936\n",
+-      "last losse: 0.008721682243049145\n",
+-      "epoch 1|810; total loss:0.023985693231225014\n",
+-      "last losse: 0.10582713782787323\n",
+-      "epoch 1|945; total loss:0.02434522472321987\n",
+-      "last losse: 0.008207665756344795\n",
+-      "epoch 1|1080; total loss:0.02845263108611107\n",
+-      "last losse: 0.01806473359465599\n",
+-      "epoch 1|1215; total loss:0.023360809311270714\n",
+-      "last losse: 0.012752124108374119\n",
+-      "epoch 2|0; total loss:3.1686664442531765e-05\n",
+-      "last losse: 0.004277699626982212\n",
+-      "epoch 2|135; total loss:0.02355112135410309\n",
+-      "last losse: 0.07546339929103851\n",
+-      "epoch 2|270; total loss:0.023957299068570137\n",
+-      "last losse: 0.00650957552716136\n",
+-      "epoch 2|405; total loss:0.021923784166574478\n",
+-      "last losse: 0.03716680407524109\n",
+-      "epoch 2|540; total loss:0.01882363297045231\n",
+-      "last losse: 0.009320218116044998\n",
+-      "epoch 2|675; total loss:0.02371099218726158\n",
+-      "last losse: 0.023646539077162743\n",
+-      "epoch 2|810; total loss:0.023935044184327126\n",
+-      "last losse: 0.012882258743047714\n",
+-      "epoch 2|945; total loss:0.017538541927933693\n",
+-      "last losse: 0.03148651123046875\n",
+-      "epoch 2|1080; total loss:0.0215308740735054\n",
+-      "last losse: 0.0055666351690888405\n",
+-      "epoch 2|1215; total loss:0.0230706799775362\n",
+-      "last losse: 0.017098862677812576\n",
+-      "epoch 3|0; total loss:3.515792923280969e-05\n",
+-      "last losse: 0.004746320657432079\n",
+-      "epoch 3|135; total loss:0.01880277879536152\n",
+-      "last losse: 0.06235231086611748\n",
+-      "epoch 3|270; total loss:0.022063743323087692\n",
+-      "last losse: 0.04072682559490204\n",
+-      "epoch 3|405; total loss:0.019500702619552612\n",
+-      "last losse: 0.07098249346017838\n",
+-      "epoch 3|540; total loss:0.019153393805027008\n",
+-      "last losse: 0.07463297992944717\n",
+-      "epoch 3|675; total loss:0.020711369812488556\n",
+-      "last losse: 0.004635422024875879\n",
+-      "epoch 3|810; total loss:0.018816238269209862\n",
+-      "last losse: 0.0039613014087080956\n",
+-      "epoch 3|945; total loss:0.020915605127811432\n",
+-      "last losse: 0.011964274570345879\n",
+-      "epoch 3|1080; total loss:0.01847090944647789\n",
+-      "last losse: 0.00880955345928669\n",
+-      "epoch 3|1215; total loss:0.023728808388113976\n",
+-      "last losse: 0.0034820190630853176\n",
+-      "epoch 4|0; total loss:7.968259888002649e-05\n",
+-      "last losse: 0.010757151059806347\n",
+-      "epoch 4|135; total loss:0.02271105907857418\n",
+-      "last losse: 0.005008957348763943\n",
+-      "epoch 4|270; total loss:0.021411839872598648\n",
+-      "last losse: 0.011259157210588455\n",
+-      "epoch 4|405; total loss:0.01653112657368183\n",
+-      "last losse: 0.005170918069779873\n",
+-      "epoch 4|540; total loss:0.01709095388650894\n",
+-      "last losse: 0.0038846065290272236\n",
+-      "epoch 4|675; total loss:0.016915347427129745\n",
+-      "last losse: 0.004450399894267321\n",
+-      "epoch 4|810; total loss:0.015477805398404598\n",
+-      "last losse: 0.006334686651825905\n",
+-      "epoch 4|945; total loss:0.01913534849882126\n",
+-      "last losse: 0.00715363584458828\n",
+-      "epoch 4|1080; total loss:0.01956724189221859\n",
+-      "last losse: 0.006474054418504238\n",
+-      "epoch 4|1215; total loss:0.016629260033369064\n",
+-      "last losse: 0.007595785427838564\n",
+-      "epoch 5|0; total loss:0.0007022274658083916\n",
+-      "last losse: 0.09480071067810059\n",
+-      "epoch 5|135; total loss:0.015338994562625885\n",
+-      "last losse: 0.020016344264149666\n",
+-      "epoch 5|270; total loss:0.016742240637540817\n",
+-      "last losse: 0.029412319883704185\n",
+-      "epoch 5|405; total loss:0.018778841942548752\n",
+-      "last losse: 0.0031597658526152372\n",
+-      "epoch 5|540; total loss:0.018571842461824417\n",
+-      "last losse: 0.04338846355676651\n",
+-      "epoch 5|675; total loss:0.019520709291100502\n",
+-      "last losse: 0.010725816711783409\n",
+-      "epoch 5|810; total loss:0.01791127398610115\n",
+-      "last losse: 0.016657035797834396\n",
+-      "epoch 5|945; total loss:0.01683257333934307\n",
+-      "last losse: 0.05099169909954071\n",
+-      "epoch 5|1080; total loss:0.01533635426312685\n",
+-      "last losse: 0.009486318565905094\n",
+-      "epoch 5|1215; total loss:0.022907061502337456\n",
+-      "last losse: 0.010059005580842495\n",
+-      "epoch 6|0; total loss:2.219637462985702e-05\n",
+-      "last losse: 0.0029965105932205915\n",
+-      "epoch 6|135; total loss:0.013824810273945332\n",
+-      "last losse: 0.009163692593574524\n",
+-      "epoch 6|270; total loss:0.022561581805348396\n",
+-      "last losse: 0.04177381843328476\n",
+-      "epoch 6|405; total loss:0.016720205545425415\n",
+-      "last losse: 0.004857134073972702\n",
+-      "epoch 6|540; total loss:0.018815606832504272\n",
+-      "last losse: 0.005671868100762367\n",
+-      "epoch 6|675; total loss:0.014913915656507015\n",
+-      "last losse: 0.03344940394163132\n",
+-      "epoch 6|810; total loss:0.01859617978334427\n",
+-      "last losse: 0.01340491697192192\n",
+-      "epoch 6|945; total loss:0.016530469059944153\n",
+-      "last losse: 0.011052148416638374\n",
+-      "epoch 6|1080; total loss:0.017097262665629387\n",
+-      "last losse: 0.0368899367749691\n",
+-      "epoch 6|1215; total loss:0.017046425491571426\n",
+-      "last losse: 0.010369805619120598\n",
+-      "epoch 7|0; total loss:2.1600959371426143e-05\n",
+-      "last losse: 0.0029161295387893915\n",
+-      "epoch 7|135; total loss:0.013004942797124386\n",
+-      "last losse: 0.003966497257351875\n",
+-      "epoch 7|270; total loss:0.015360238961875439\n",
+-      "last losse: 0.020258652046322823\n",
+-      "epoch 7|405; total loss:0.016843721270561218\n",
+-      "last losse: 0.002079026773571968\n",
+-      "epoch 7|540; total loss:0.017669562250375748\n",
+-      "last losse: 0.016883406788110733\n",
+-      "epoch 7|675; total loss:0.01632172428071499\n",
+-      "last losse: 0.032423458993434906\n",
+-      "epoch 7|810; total loss:0.018082888796925545\n",
+-      "last losse: 0.0032280837185680866\n",
+-      "epoch 7|945; total loss:0.016423113644123077\n",
+-      "last losse: 0.0030094077810645103\n",
+-      "epoch 7|1080; total loss:0.015346724539995193\n",
+-      "last losse: 0.04256517440080643\n",
+-      "epoch 7|1215; total loss:0.018454087898135185\n",
+-      "last losse: 0.006480312906205654\n",
+-      "epoch 8|0; total loss:2.2433410777011886e-05\n",
+-      "last losse: 0.0030285106040537357\n",
+-      "epoch 8|135; total loss:0.016782833263278008\n",
+-      "last losse: 0.048156239092350006\n",
+-      "epoch 8|270; total loss:0.016202988103032112\n",
+-      "last losse: 0.05161662399768829\n",
+-      "epoch 8|405; total loss:0.015979338437318802\n",
+-      "last losse: 0.008811159059405327\n",
+-      "epoch 8|540; total loss:0.011743661016225815\n",
+-      "last losse: 0.03909929841756821\n",
+-      "epoch 8|675; total loss:0.01613568887114525\n",
+-      "last losse: 0.022980479523539543\n",
+-      "epoch 8|810; total loss:0.014931920915842056\n",
+-      "last losse: 0.021589837968349457\n",
+-      "epoch 8|945; total loss:0.016253788024187088\n",
+-      "last losse: 0.005904296413064003\n",
+-      "epoch 8|1080; total loss:0.0156386885792017\n",
+-      "last losse: 0.01505986787378788\n",
+-      "epoch 8|1215; total loss:0.013280116952955723\n",
+-      "last losse: 0.07409568130970001\n",
+-      "epoch 9|0; total loss:2.9356822778936476e-05\n",
+-      "last losse: 0.003963171038776636\n",
+-      "epoch 9|135; total loss:0.01563883200287819\n",
+-      "last losse: 0.027645278722047806\n",
+-      "epoch 9|270; total loss:0.015130311250686646\n",
+-      "last losse: 0.015885548666119576\n",
+-      "epoch 9|405; total loss:0.01352208387106657\n",
+-      "last losse: 0.011162751354277134\n",
+-      "epoch 9|540; total loss:0.013099102303385735\n",
+-      "last losse: 0.02315332181751728\n",
+-      "epoch 9|675; total loss:0.014903845265507698\n",
+-      "last losse: 0.0029816729947924614\n",
+-      "epoch 9|810; total loss:0.013277740217745304\n",
+-      "last losse: 0.008984535932540894\n",
+-      "epoch 9|945; total loss:0.013352352194488049\n",
+-      "last losse: 0.002889002673327923\n",
+-      "epoch 9|1080; total loss:0.016419248655438423\n",
+-      "last losse: 0.003321355674415827\n",
+-      "epoch 9|1215; total loss:0.014915616251528263\n",
+-      "last losse: 0.06261128187179565\n",
+-      "epoch 10|0; total loss:5.542208964470774e-05\n",
+-      "last losse: 0.007481982000172138\n",
+-      "epoch 10|135; total loss:0.018108604475855827\n",
+-      "last losse: 0.09684993326663971\n",
+-      "epoch 10|270; total loss:0.017396071925759315\n",
+-      "last losse: 0.00305491266772151\n",
+-      "epoch 10|405; total loss:0.014637083746492863\n",
+-      "last losse: 0.01903187669813633\n",
+-      "epoch 10|540; total loss:0.013743306510150433\n",
+-      "last losse: 0.003230535425245762\n",
+-      "epoch 10|675; total loss:0.012725510634481907\n",
+-      "last losse: 0.0034610917791724205\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 10|810; total loss:0.014089175499975681\n",
+-      "last losse: 0.010157912969589233\n",
+-      "epoch 10|945; total loss:0.012277563102543354\n",
+-      "last losse: 0.00207931618206203\n",
+-      "epoch 10|1080; total loss:0.013334007002413273\n",
+-      "last losse: 0.030232224613428116\n",
+-      "epoch 10|1215; total loss:0.0132749043405056\n",
+-      "last losse: 0.01004797127097845\n",
+-      "epoch 11|0; total loss:3.1788174965186045e-05\n",
+-      "last losse: 0.0042914035730063915\n",
+-      "epoch 11|135; total loss:0.013418220914900303\n",
+-      "last losse: 0.024166541174054146\n",
+-      "epoch 11|270; total loss:0.015512431040406227\n",
+-      "last losse: 0.03996280953288078\n",
+-      "epoch 11|405; total loss:0.012747579254209995\n",
+-      "last losse: 0.022880330681800842\n",
+-      "epoch 11|540; total loss:0.013368128798902035\n",
+-      "last losse: 0.01833852007985115\n",
+-      "epoch 11|675; total loss:0.013664706610143185\n",
+-      "last losse: 0.011807020753622055\n",
+-      "epoch 11|810; total loss:0.011947316117584705\n",
+-      "last losse: 0.004235542379319668\n",
+-      "epoch 11|945; total loss:0.014399386011064053\n",
+-      "last losse: 0.0025751693174242973\n",
+-      "epoch 11|1080; total loss:0.012565682642161846\n",
+-      "last losse: 0.006662705913186073\n",
+-      "epoch 11|1215; total loss:0.013588669709861279\n",
+-      "last losse: 0.003358488902449608\n",
+-      "epoch 12|0; total loss:0.00014285479846876115\n",
+-      "last losse: 0.019285397604107857\n",
+-      "epoch 12|135; total loss:0.014208486303687096\n",
+-      "last losse: 0.0038856430910527706\n",
+-      "epoch 12|270; total loss:0.010998833924531937\n",
+-      "last losse: 0.011715168133378029\n",
+-      "epoch 12|405; total loss:0.014750457368791103\n",
+-      "last losse: 0.0028080639895051718\n",
+-      "epoch 12|540; total loss:0.012763801962137222\n",
+-      "last losse: 0.026377687230706215\n",
+-      "epoch 12|675; total loss:0.01095265056937933\n",
+-      "last losse: 0.005898762959986925\n",
+-      "epoch 12|810; total loss:0.01408576499670744\n",
+-      "last losse: 0.0030028801411390305\n",
+-      "epoch 12|945; total loss:0.01520202774554491\n",
+-      "last losse: 0.03461279347538948\n",
+-      "epoch 12|1080; total loss:0.011709539219737053\n",
+-      "last losse: 0.0033811875618994236\n",
+-      "epoch 12|1215; total loss:0.013904565945267677\n",
+-      "last losse: 0.025678787380456924\n",
+-      "epoch 13|0; total loss:2.3041857275529765e-05\n",
+-      "last losse: 0.0031106506939977407\n",
+-      "epoch 13|135; total loss:0.011849308386445045\n",
+-      "last losse: 0.0035087065771222115\n",
+-      "epoch 13|270; total loss:0.014717633835971355\n",
+-      "last losse: 0.01716606132686138\n",
+-      "epoch 13|405; total loss:0.012380560860037804\n",
+-      "last losse: 0.018344715237617493\n",
+-      "epoch 13|540; total loss:0.012170037254691124\n",
+-      "last losse: 0.002592905657365918\n",
+-      "epoch 13|675; total loss:0.012957287020981312\n",
+-      "last losse: 0.049897365272045135\n",
+-      "epoch 13|810; total loss:0.011179173365235329\n",
+-      "last losse: 0.003737521590664983\n",
+-      "epoch 13|945; total loss:0.013246574439108372\n",
+-      "last losse: 0.030208732932806015\n",
+-      "epoch 13|1080; total loss:0.014359889551997185\n",
+-      "last losse: 0.003713252255693078\n",
+-      "epoch 13|1215; total loss:0.012599042616784573\n",
+-      "last losse: 0.0016120142536237836\n",
+-      "epoch 14|0; total loss:8.467910811305046e-05\n",
+-      "last losse: 0.0114316800609231\n",
+-      "epoch 14|135; total loss:0.014280113391578197\n",
+-      "last losse: 0.0021431047935038805\n",
+-      "epoch 14|270; total loss:0.01589112915098667\n",
+-      "last losse: 0.02902504801750183\n",
+-      "epoch 14|405; total loss:0.013596434146165848\n",
+-      "last losse: 0.006453875917941332\n",
+-      "epoch 14|540; total loss:0.012049333192408085\n",
+-      "last losse: 0.0033656687010079622\n",
+-      "epoch 14|675; total loss:0.013340301811695099\n",
+-      "last losse: 0.0018968421500176191\n",
+-      "epoch 14|810; total loss:0.014004145748913288\n",
+-      "last losse: 0.0030160960741341114\n",
+-      "epoch 14|945; total loss:0.012274924665689468\n",
+-      "last losse: 0.06632433086633682\n",
+-      "epoch 14|1080; total loss:0.013090004213154316\n",
+-      "last losse: 0.004241890273988247\n",
+-      "epoch 14|1215; total loss:0.011531182564795017\n",
+-      "last losse: 0.0030761610250920057\n",
+-      "epoch 15|0; total loss:6.178798503242433e-05\n",
+-      "last losse: 0.008341378532350063\n",
+-      "epoch 15|135; total loss:0.012801877222955227\n",
+-      "last losse: 0.0717390850186348\n",
+-      "epoch 15|270; total loss:0.01306216698139906\n",
+-      "last losse: 0.0013242976274341345\n",
+-      "epoch 15|405; total loss:0.014659064821898937\n",
+-      "last losse: 0.003003454301506281\n",
+-      "epoch 15|540; total loss:0.013488425873219967\n",
+-      "last losse: 0.01900266855955124\n",
+-      "epoch 15|675; total loss:0.012881807051599026\n",
+-      "last losse: 0.002504464238882065\n",
+-      "epoch 15|810; total loss:0.010726254433393478\n",
+-      "last losse: 0.021910792216658592\n",
+-      "epoch 15|945; total loss:0.01209633145481348\n",
+-      "last losse: 0.0025227840524166822\n",
+-      "epoch 15|1080; total loss:0.009282189421355724\n",
+-      "last losse: 0.0026203386951237917\n",
+-      "epoch 15|1215; total loss:0.013995320536196232\n",
+-      "last losse: 0.009400274604558945\n",
+-      "epoch 16|0; total loss:0.00019730727944988757\n",
+-      "last losse: 0.026636483147740364\n",
+-      "epoch 16|135; total loss:0.013413305394351482\n",
+-      "last losse: 0.014418345876038074\n",
+-      "epoch 16|270; total loss:0.011567153967916965\n",
+-      "last losse: 0.018781935796141624\n",
+-      "epoch 16|405; total loss:0.012380264699459076\n",
+-      "last losse: 0.012135522440075874\n",
+-      "epoch 16|540; total loss:0.01263340562582016\n",
+-      "last losse: 0.005190743599087\n",
+-      "epoch 16|675; total loss:0.01333155669271946\n",
+-      "last losse: 0.020393503829836845\n",
+-      "epoch 16|810; total loss:0.01167982816696167\n",
+-      "last losse: 0.016339048743247986\n",
+-      "epoch 16|945; total loss:0.010983198881149292\n",
+-      "last losse: 0.016836106777191162\n",
+-      "epoch 16|1080; total loss:0.011256879195570946\n",
+-      "last losse: 0.001565522514283657\n",
+-      "epoch 16|1215; total loss:0.0126162925735116\n",
+-      "last losse: 0.06345009058713913\n",
+-      "epoch 17|0; total loss:0.00014963620924390852\n",
+-      "last losse: 0.02020088955760002\n",
+-      "epoch 17|135; total loss:0.011613545939326286\n",
+-      "last losse: 0.0014927622396498919\n",
+-      "epoch 17|270; total loss:0.01028762198984623\n",
+-      "last losse: 0.002286510309204459\n",
+-      "epoch 17|405; total loss:0.010464408434927464\n",
+-      "last losse: 0.004112154711037874\n",
+-      "epoch 17|540; total loss:0.010310227982699871\n",
+-      "last losse: 0.0013404469937086105\n",
+-      "epoch 17|675; total loss:0.011796403676271439\n",
+-      "last losse: 0.05736160650849342\n",
+-      "epoch 17|810; total loss:0.014508849009871483\n",
+-      "last losse: 0.008482549339532852\n",
+-      "epoch 17|945; total loss:0.013543764129281044\n",
+-      "last losse: 0.004403918515890837\n",
+-      "epoch 17|1080; total loss:0.014201865531504154\n",
+-      "last losse: 0.010604104958474636\n",
+-      "epoch 17|1215; total loss:0.01164238154888153\n",
+-      "last losse: 0.018049215897917747\n",
+-      "epoch 18|0; total loss:8.745703962631524e-05\n",
+-      "last losse: 0.011806700378656387\n",
+-      "epoch 18|135; total loss:0.013052829541265965\n",
+-      "last losse: 0.00822304654866457\n",
+-      "epoch 18|270; total loss:0.012368814088404179\n",
+-      "last losse: 0.00922216847538948\n",
+-      "epoch 18|405; total loss:0.010060153901576996\n",
+-      "last losse: 0.003004856873303652\n",
+-      "epoch 18|540; total loss:0.01096445694565773\n",
+-      "last losse: 0.032469138503074646\n",
+-      "epoch 18|675; total loss:0.011293171904981136\n",
+-      "last losse: 0.0034058052115142345\n",
+-      "epoch 18|810; total loss:0.010425525717437267\n",
+-      "last losse: 0.005045356694608927\n",
+-      "epoch 18|945; total loss:0.01199514139443636\n",
+-      "last losse: 0.0025659685488790274\n",
+-      "epoch 18|1080; total loss:0.013092250563204288\n",
+-      "last losse: 0.03991734981536865\n",
+-      "epoch 18|1215; total loss:0.00826728530228138\n",
+-      "last losse: 0.0021542042959481478\n",
+-      "epoch 19|0; total loss:2.7023805159842595e-05\n",
+-      "last losse: 0.0036482138093560934\n",
+-      "epoch 19|135; total loss:0.012724011205136776\n",
+-      "last losse: 0.004089883528649807\n",
+-      "epoch 19|270; total loss:0.011041329242289066\n",
+-      "last losse: 0.004053943790495396\n",
+-      "epoch 19|405; total loss:0.01094011403620243\n",
+-      "last losse: 0.009707617573440075\n",
+-      "epoch 19|540; total loss:0.012571577914059162\n",
+-      "last losse: 0.0017501753754913807\n",
+-      "epoch 19|675; total loss:0.012758508324623108\n",
+-      "last losse: 0.002119851764291525\n",
+-      "epoch 19|810; total loss:0.013666020706295967\n",
+-      "last losse: 0.016571922227740288\n",
+-      "epoch 19|945; total loss:0.012255747802555561\n",
+-      "last losse: 0.00242903595790267\n",
+-      "epoch 19|1080; total loss:0.0096522131934762\n",
+-      "last losse: 0.020158179104328156\n",
+-      "epoch 19|1215; total loss:0.011816012673079967\n",
+-      "last losse: 0.005163226742297411\n",
+-      "epoch 20|0; total loss:1.6018344467738643e-05\n",
+-      "last losse: 0.002162476535886526\n",
+-      "epoch 20|135; total loss:0.011128602549433708\n",
+-      "last losse: 0.003613353008404374\n",
+-      "epoch 20|270; total loss:0.009488759562373161\n",
+-      "last losse: 0.002414355520159006\n",
+-      "epoch 20|405; total loss:0.011570867151021957\n",
+-      "last losse: 0.0030336501076817513\n",
+-      "epoch 20|540; total loss:0.014837074093520641\n",
+-      "last losse: 0.026899468153715134\n",
+-      "epoch 20|675; total loss:0.013908510096371174\n",
+-      "last losse: 0.0034197380300611258\n",
+-      "epoch 20|810; total loss:0.011618937365710735\n",
+-      "last losse: 0.006704334635287523\n",
+-      "epoch 20|945; total loss:0.0093796132132411\n",
+-      "last losse: 0.0009089285740628839\n",
+-      "epoch 20|1080; total loss:0.010361820459365845\n",
+-      "last losse: 0.014039014466106892\n",
+-      "epoch 20|1215; total loss:0.010729188099503517\n",
+-      "last losse: 0.002153826644644141\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 21|0; total loss:0.00012413215881679207\n",
+-      "last losse: 0.016757842153310776\n",
+-      "epoch 21|135; total loss:0.012139000929892063\n",
+-      "last losse: 0.018369125202298164\n",
+-      "epoch 21|270; total loss:0.010256338864564896\n",
+-      "last losse: 0.010352713987231255\n",
+-      "epoch 21|405; total loss:0.011402537114918232\n",
+-      "last losse: 0.02360890619456768\n",
+-      "epoch 21|540; total loss:0.011937005445361137\n",
+-      "last losse: 0.0022197356447577477\n",
+-      "epoch 21|675; total loss:0.013239863328635693\n",
+-      "last losse: 0.04594557359814644\n",
+-      "epoch 21|810; total loss:0.010800533927977085\n",
+-      "last losse: 0.00251596188172698\n",
+-      "epoch 21|945; total loss:0.012638522312045097\n",
+-      "last losse: 0.05149460956454277\n",
+-      "epoch 21|1080; total loss:0.010640830732882023\n",
+-      "last losse: 0.004707097075879574\n",
+-      "epoch 21|1215; total loss:0.009462705813348293\n",
+-      "last losse: 0.0034584810491651297\n",
+-      "epoch 22|0; total loss:5.333015906217042e-06\n",
+-      "last losse: 0.0007199571700766683\n",
+-      "epoch 22|135; total loss:0.011164963245391846\n",
+-      "last losse: 0.02606477402150631\n",
+-      "epoch 22|270; total loss:0.011367922648787498\n",
+-      "last losse: 0.010810883715748787\n",
+-      "epoch 22|405; total loss:0.012667416594922543\n",
+-      "last losse: 0.06410123407840729\n",
+-      "epoch 22|540; total loss:0.009944451972842216\n",
+-      "last losse: 0.019266434013843536\n",
+-      "epoch 22|675; total loss:0.009443067014217377\n",
+-      "last losse: 0.0029258267022669315\n",
+-      "epoch 22|810; total loss:0.010487498715519905\n",
+-      "last losse: 0.0037377169355750084\n",
+-      "epoch 22|945; total loss:0.010525800287723541\n",
+-      "last losse: 0.004536581225693226\n",
+-      "epoch 22|1080; total loss:0.012993339449167252\n",
+-      "last losse: 0.003943425603210926\n",
+-      "epoch 22|1215; total loss:0.01309120748192072\n",
+-      "last losse: 0.006658320315182209\n",
+-      "epoch 23|0; total loss:2.208551268267911e-05\n",
+-      "last losse: 0.002981544239446521\n",
+-      "epoch 23|135; total loss:0.01047448255121708\n",
+-      "last losse: 0.016226617619395256\n",
+-      "epoch 23|270; total loss:0.011147228069603443\n",
+-      "last losse: 0.023083040490746498\n",
+-      "epoch 23|405; total loss:0.014309103600680828\n",
+-      "last losse: 0.003719322383403778\n",
+-      "epoch 23|540; total loss:0.01629442162811756\n",
+-      "last losse: 0.004146081395447254\n",
+-      "epoch 23|675; total loss:0.010861995629966259\n",
+-      "last losse: 0.003729146206751466\n",
+-      "epoch 23|810; total loss:0.013677727431058884\n",
+-      "last losse: 0.0028625736013054848\n",
+-      "epoch 23|945; total loss:0.011990672908723354\n",
+-      "last losse: 0.014417270198464394\n",
+-      "epoch 23|1080; total loss:0.011526054702699184\n",
+-      "last losse: 0.0027862186543643475\n",
+-      "epoch 23|1215; total loss:0.010872675105929375\n",
+-      "last losse: 0.0031479771714657545\n",
+-      "epoch 24|0; total loss:1.1586896107473876e-05\n",
+-      "last losse: 0.001564231002703309\n",
+-      "epoch 24|135; total loss:0.010093721561133862\n",
+-      "last losse: 0.002720955293625593\n",
+-      "epoch 24|270; total loss:0.011588959023356438\n",
+-      "last losse: 0.0010075076716020703\n",
+-      "epoch 24|405; total loss:0.013472050428390503\n",
+-      "last losse: 0.006697528995573521\n",
+-      "epoch 24|540; total loss:0.012206199578940868\n",
+-      "last losse: 0.0038690255023539066\n",
+-      "epoch 24|675; total loss:0.009809916839003563\n",
+-      "last losse: 0.009242823347449303\n",
+-      "epoch 24|810; total loss:0.011455644853413105\n",
+-      "last losse: 0.002488534664735198\n",
+-      "epoch 24|945; total loss:0.010341610759496689\n",
+-      "last losse: 0.014756878837943077\n",
+-      "epoch 24|1080; total loss:0.012565935030579567\n",
+-      "last losse: 0.004108136054128408\n",
+-      "epoch 24|1215; total loss:0.010144068859517574\n",
+-      "last losse: 0.003610128303989768\n",
+-      "epoch 25|0; total loss:7.054456364130601e-05\n",
+-      "last losse: 0.009523516520857811\n",
+-      "epoch 25|135; total loss:0.010936803184449673\n",
+-      "last losse: 0.020668040961027145\n",
+-      "epoch 25|270; total loss:0.010481977835297585\n",
+-      "last losse: 0.0017109434120357037\n",
+-      "epoch 25|405; total loss:0.010811595246195793\n",
+-      "last losse: 0.022880416363477707\n",
+-      "epoch 25|540; total loss:0.011580301448702812\n",
+-      "last losse: 0.02300763502717018\n",
+-      "epoch 25|675; total loss:0.010790118016302586\n",
+-      "last losse: 0.0024736025370657444\n",
+-      "epoch 25|810; total loss:0.011720593087375164\n",
+-      "last losse: 0.027100956067442894\n",
+-      "epoch 25|945; total loss:0.009773620404303074\n",
+-      "last losse: 0.041981544345617294\n",
+-      "epoch 25|1080; total loss:0.011094487272202969\n",
+-      "last losse: 0.012635390274226665\n",
+-      "epoch 25|1215; total loss:0.011908196844160557\n",
+-      "last losse: 0.0033548655919730663\n",
+-      "epoch 26|0; total loss:1.263142803509254e-05\n",
+-      "last losse: 0.0017052427865564823\n",
+-      "epoch 26|135; total loss:0.00924618635326624\n",
+-      "last losse: 0.003311214502900839\n",
+-      "epoch 26|270; total loss:0.01109000388532877\n",
+-      "last losse: 0.025811929255723953\n",
+-      "epoch 26|405; total loss:0.011546407826244831\n",
+-      "last losse: 0.027621589601039886\n",
+-      "epoch 26|540; total loss:0.010103333741426468\n",
+-      "last losse: 0.0016959275817498565\n",
+-      "epoch 26|675; total loss:0.010947350412607193\n",
+-      "last losse: 0.00949156191200018\n",
+-      "epoch 26|810; total loss:0.011107058264315128\n",
+-      "last losse: 0.00679484149441123\n",
+-      "epoch 26|945; total loss:0.01080591231584549\n",
+-      "last losse: 0.008860932663083076\n",
+-      "epoch 26|1080; total loss:0.013318860903382301\n",
+-      "last losse: 0.027918530628085136\n",
+-      "epoch 26|1215; total loss:0.01175722572952509\n",
+-      "last losse: 0.013380310498178005\n",
+-      "epoch 27|0; total loss:0.00012742000399157405\n",
+-      "last losse: 0.017201701179146767\n",
+-      "epoch 27|135; total loss:0.00882119219750166\n",
+-      "last losse: 0.0022468888200819492\n",
+-      "epoch 27|270; total loss:0.011523913592100143\n",
+-      "last losse: 0.01396807748824358\n",
+-      "epoch 27|405; total loss:0.010695128701627254\n",
+-      "last losse: 0.0010461581405252218\n",
+-      "epoch 27|540; total loss:0.010055875405669212\n",
+-      "last losse: 0.03238657861948013\n",
+-      "epoch 27|675; total loss:0.0099017433822155\n",
+-      "last losse: 0.0022700377739965916\n",
+-      "epoch 27|810; total loss:0.011494528502225876\n",
+-      "last losse: 0.013657351024448872\n",
+-      "epoch 27|945; total loss:0.01133127324283123\n",
+-      "last losse: 0.0035347919911146164\n",
+-      "epoch 27|1080; total loss:0.009559523314237595\n",
+-      "last losse: 0.02188064157962799\n",
+-      "epoch 27|1215; total loss:0.013071396388113499\n",
+-      "last losse: 0.03740670904517174\n",
+-      "epoch 28|0; total loss:2.6161600544583052e-05\n",
+-      "last losse: 0.0035318161826580763\n",
+-      "epoch 28|135; total loss:0.01022639311850071\n",
+-      "last losse: 0.002049645408987999\n",
+-      "epoch 28|270; total loss:0.010078616440296173\n",
+-      "last losse: 0.002560620428994298\n",
+-      "epoch 28|405; total loss:0.011037350632250309\n",
+-      "last losse: 0.004155868198722601\n",
+-      "epoch 28|540; total loss:0.01129789836704731\n",
+-      "last losse: 0.004552082158625126\n",
+-      "epoch 28|675; total loss:0.012441525235772133\n",
+-      "last losse: 0.003571182955056429\n",
+-      "epoch 28|810; total loss:0.014610221609473228\n",
+-      "last losse: 0.03409010171890259\n",
+-      "epoch 28|945; total loss:0.010725101456046104\n",
+-      "last losse: 0.006232719402760267\n",
+-      "epoch 28|1080; total loss:0.011878738179802895\n",
+-      "last losse: 0.027865968644618988\n",
+-      "epoch 28|1215; total loss:0.014538774266839027\n",
+-      "last losse: 0.009543024934828281\n",
+-      "epoch 29|0; total loss:2.0264273189241067e-05\n",
+-      "last losse: 0.0027356769423931837\n",
+-      "epoch 29|135; total loss:0.01194486953318119\n",
+-      "last losse: 0.002301967702805996\n",
+-      "epoch 29|270; total loss:0.012683470733463764\n",
+-      "last losse: 0.0023937595542520285\n",
+-      "epoch 29|405; total loss:0.011567248962819576\n",
+-      "last losse: 0.0012264982797205448\n",
+-      "epoch 29|540; total loss:0.013102850876748562\n",
+-      "last losse: 0.0030596056021749973\n",
+-      "epoch 29|675; total loss:0.009425278753042221\n",
+-      "last losse: 0.004990279208868742\n",
+-      "epoch 29|810; total loss:0.01030636765062809\n",
+-      "last losse: 0.04652104899287224\n",
+-      "epoch 29|945; total loss:0.014146681874990463\n",
+-      "last losse: 0.019103266298770905\n",
+-      "epoch 29|1080; total loss:0.01944483257830143\n",
+-      "last losse: 0.014040760695934296\n",
+-      "epoch 29|1215; total loss:0.012116535566747189\n",
+-      "last losse: 0.0032875179313123226\n",
+-      "epoch 30|0; total loss:8.340784552274272e-05\n",
+-      "last losse: 0.011260059662163258\n",
+-      "epoch 30|135; total loss:0.012366012670099735\n",
+-      "last losse: 0.002056386321783066\n",
+-      "epoch 30|270; total loss:0.01189934927970171\n",
+-      "last losse: 0.02725643664598465\n",
+-      "epoch 30|405; total loss:0.011368858627974987\n",
+-      "last losse: 0.0029850839637219906\n",
+-      "epoch 30|540; total loss:0.009049610234797001\n",
+-      "last losse: 0.0025418070144951344\n",
+-      "epoch 30|675; total loss:0.00998102966696024\n",
+-      "last losse: 0.0017075981013476849\n",
+-      "epoch 30|810; total loss:0.011126087047159672\n",
+-      "last losse: 0.002899420913308859\n",
+-      "epoch 30|945; total loss:0.009651215746998787\n",
+-      "last losse: 0.0028341200668364763\n",
+-      "epoch 30|1080; total loss:0.010849187150597572\n",
+-      "last losse: 0.003449763637036085\n",
+-      "epoch 30|1215; total loss:0.011681552045047283\n",
+-      "last losse: 0.01161177083849907\n",
+-      "epoch 31|0; total loss:0.0003866116749122739\n",
+-      "last losse: 0.052192576229572296\n",
+-      "epoch 31|135; total loss:0.011642695404589176\n",
+-      "last losse: 0.00572333624586463\n",
+-      "epoch 31|270; total loss:0.009245103225111961\n",
+-      "last losse: 0.018083786591887474\n",
+-      "epoch 31|405; total loss:0.009540176019072533\n",
+-      "last losse: 0.0018248902633786201\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 31|540; total loss:0.009219412691891193\n",
+-      "last losse: 0.01423807255923748\n",
+-      "epoch 31|675; total loss:0.012346524745225906\n",
+-      "last losse: 0.02218020334839821\n",
+-      "epoch 31|810; total loss:0.012422990053892136\n",
+-      "last losse: 0.004081025253981352\n",
+-      "epoch 31|945; total loss:0.010644149966537952\n",
+-      "last losse: 0.020503943786025047\n",
+-      "epoch 31|1080; total loss:0.011531990021467209\n",
+-      "last losse: 0.044687315821647644\n",
+-      "epoch 31|1215; total loss:0.008538200519979\n",
+-      "last losse: 0.0018200698541477323\n",
+-      "epoch 32|0; total loss:1.4050935533305164e-05\n",
+-      "last losse: 0.0018968763761222363\n",
+-      "epoch 32|135; total loss:0.008799824863672256\n",
+-      "last losse: 0.008197247982025146\n",
+-      "epoch 32|270; total loss:0.009872125461697578\n",
+-      "last losse: 0.023437853902578354\n",
+-      "epoch 32|405; total loss:0.013438776135444641\n",
+-      "last losse: 0.0020327309612184763\n",
+-      "epoch 32|540; total loss:0.011396071873605251\n",
+-      "last losse: 0.028438379988074303\n",
+-      "epoch 32|675; total loss:0.008569365367293358\n",
+-      "last losse: 0.008853890001773834\n",
+-      "epoch 32|810; total loss:0.009561504237353802\n",
+-      "last losse: 0.010569209232926369\n",
+-      "epoch 32|945; total loss:0.01095201913267374\n",
+-      "last losse: 0.0020114840008318424\n",
+-      "epoch 32|1080; total loss:0.00953876506537199\n",
+-      "last losse: 0.003289364743977785\n",
+-      "epoch 32|1215; total loss:0.011210178025066853\n",
+-      "last losse: 0.0023163508158177137\n",
+-      "epoch 33|0; total loss:1.479175807617139e-05\n",
+-      "last losse: 0.001996887382119894\n",
+-      "epoch 33|135; total loss:0.009699341841042042\n",
+-      "last losse: 0.003779224818572402\n",
+-      "epoch 33|270; total loss:0.009273923933506012\n",
+-      "last losse: 0.010076973587274551\n",
+-      "epoch 33|405; total loss:0.010483866557478905\n",
+-      "last losse: 0.00802611093968153\n",
+-      "epoch 33|540; total loss:0.014984623529016972\n",
+-      "last losse: 0.004556138999760151\n",
+-      "epoch 33|675; total loss:0.014188690111041069\n",
+-      "last losse: 0.0030042864382267\n",
+-      "epoch 33|810; total loss:0.010168556123971939\n",
+-      "last losse: 0.0026086634024977684\n",
+-      "epoch 33|945; total loss:0.013485920615494251\n",
+-      "last losse: 0.0024290133733302355\n",
+-      "epoch 33|1080; total loss:0.010410449467599392\n",
+-      "last losse: 0.003015795722603798\n",
+-      "epoch 33|1215; total loss:0.013040621764957905\n",
+-      "last losse: 0.0032563183922320604\n",
+-      "epoch 34|0; total loss:2.1111542082508095e-05\n",
+-      "last losse: 0.0028500582557171583\n",
+-      "epoch 34|135; total loss:0.01084700133651495\n",
+-      "last losse: 0.002543172100558877\n",
+-      "epoch 34|270; total loss:0.01125723123550415\n",
+-      "last losse: 0.01115039736032486\n",
+-      "epoch 34|405; total loss:0.011449811048805714\n",
+-      "last losse: 0.007196088787168264\n",
+-      "epoch 34|540; total loss:0.008804002776741982\n",
+-      "last losse: 0.011286532506346703\n",
+-      "epoch 34|675; total loss:0.010848908685147762\n",
+-      "last losse: 0.026892587542533875\n",
+-      "epoch 34|810; total loss:0.010807229205965996\n",
+-      "last losse: 0.00863760057836771\n",
+-      "epoch 34|945; total loss:0.009412751533091068\n",
+-      "last losse: 0.0018974830163642764\n",
+-      "epoch 34|1080; total loss:0.012834561988711357\n",
+-      "last losse: 0.0039056669920682907\n",
+-      "epoch 34|1215; total loss:0.010461313650012016\n",
+-      "last losse: 0.007507068105041981\n",
+-      "epoch 35|0; total loss:1.873045948741492e-05\n",
+-      "last losse: 0.0025286120362579823\n",
+-      "epoch 35|135; total loss:0.009434293024241924\n",
+-      "last losse: 0.04058254510164261\n",
+-      "epoch 35|270; total loss:0.011076206341385841\n",
+-      "last losse: 0.0022352745290845633\n",
+-      "epoch 35|405; total loss:0.01065892819315195\n",
+-      "last losse: 0.01975070685148239\n",
+-      "epoch 35|540; total loss:0.01120014302432537\n",
+-      "last losse: 0.002465512603521347\n",
+-      "epoch 35|675; total loss:0.008552676066756248\n",
+-      "last losse: 0.004770728759467602\n",
+-      "epoch 35|810; total loss:0.009744694456458092\n",
+-      "last losse: 0.0034228789154440165\n",
+-      "epoch 35|945; total loss:0.01129220612347126\n",
+-      "last losse: 0.03147422894835472\n",
+-      "epoch 35|1080; total loss:0.012181255035102367\n",
+-      "last losse: 0.0028271395713090897\n",
+-      "epoch 35|1215; total loss:0.009492586366832256\n",
+-      "last losse: 0.008056732825934887\n",
+-      "epoch 36|0; total loss:0.00019293422519695014\n",
+-      "last losse: 0.02604612149298191\n",
+-      "epoch 36|135; total loss:0.010488034226000309\n",
+-      "last losse: 0.001809293869882822\n",
+-      "epoch 36|270; total loss:0.009353656321763992\n",
+-      "last losse: 0.006635247729718685\n",
+-      "epoch 36|405; total loss:0.010003382340073586\n",
+-      "last losse: 0.00870980229228735\n",
+-      "epoch 36|540; total loss:0.009286156855523586\n",
+-      "last losse: 0.055585674941539764\n",
+-      "epoch 36|675; total loss:0.01287121046334505\n",
+-      "last losse: 0.0024281733203679323\n",
+-      "epoch 36|810; total loss:0.011628654785454273\n",
+-      "last losse: 0.002274454105645418\n",
+-      "epoch 36|945; total loss:0.011212402954697609\n",
+-      "last losse: 0.0365915410220623\n",
+-      "epoch 36|1080; total loss:0.010541798546910286\n",
+-      "last losse: 0.004078716970980167\n",
+-      "epoch 36|1215; total loss:0.008558741770684719\n",
+-      "last losse: 0.002447353908792138\n",
+-      "epoch 37|0; total loss:0.00013536243932321668\n",
+-      "last losse: 0.01827392913401127\n",
+-      "epoch 37|135; total loss:0.012791675515472889\n",
+-      "last losse: 0.0028076996095478535\n",
+-      "epoch 37|270; total loss:0.01260798517614603\n",
+-      "last losse: 0.02153993956744671\n",
+-      "epoch 37|405; total loss:0.01135941594839096\n",
+-      "last losse: 0.0015035306569188833\n",
+-      "epoch 37|540; total loss:0.010625756345689297\n",
+-      "last losse: 0.004381394013762474\n",
+-      "epoch 37|675; total loss:0.010557369329035282\n",
+-      "last losse: 0.005061493255198002\n",
+-      "epoch 37|810; total loss:0.007923177443444729\n",
+-      "last losse: 0.0019922060891985893\n",
+-      "epoch 37|945; total loss:0.009434625506401062\n",
+-      "last losse: 0.001712176133878529\n",
+-      "epoch 37|1080; total loss:0.009230363182723522\n",
+-      "last losse: 0.001231169793754816\n",
+-      "epoch 37|1215; total loss:0.010105895809829235\n",
+-      "last losse: 0.002081440296024084\n",
+-      "epoch 38|0; total loss:1.4550666492141318e-05\n",
+-      "last losse: 0.0019643399864435196\n",
+-      "epoch 38|135; total loss:0.01031417865306139\n",
+-      "last losse: 0.0034030391834676266\n",
+-      "epoch 38|270; total loss:0.012171094305813313\n",
+-      "last losse: 0.0321439728140831\n",
+-      "epoch 38|405; total loss:0.009651624597609043\n",
+-      "last losse: 0.006601749453693628\n",
+-      "epoch 38|540; total loss:0.009550284594297409\n",
+-      "last losse: 0.005111377220600843\n",
+-      "epoch 38|675; total loss:0.010603126138448715\n",
+-      "last losse: 0.013415389694273472\n",
+-      "epoch 38|810; total loss:0.01225086860358715\n",
+-      "last losse: 0.02075936459004879\n",
+-      "epoch 38|945; total loss:0.011588974855840206\n",
+-      "last losse: 0.022916069254279137\n",
+-      "epoch 38|1080; total loss:0.008531195111572742\n",
+-      "last losse: 0.0015847160248085856\n",
+-      "epoch 38|1215; total loss:0.010314703918993473\n",
+-      "last losse: 0.002813272178173065\n",
+-      "epoch 39|0; total loss:2.807306736940518e-05\n",
+-      "last losse: 0.0037898642476648092\n",
+-      "epoch 39|135; total loss:0.009980591014027596\n",
+-      "last losse: 0.003235578304156661\n",
+-      "epoch 39|270; total loss:0.011203705333173275\n",
+-      "last losse: 0.0023626270703971386\n",
+-      "epoch 39|405; total loss:0.01003279723227024\n",
+-      "last losse: 0.013232305645942688\n",
+-      "epoch 39|540; total loss:0.012327435426414013\n",
+-      "last losse: 0.002620663261041045\n",
+-      "epoch 39|675; total loss:0.0094147939234972\n",
+-      "last losse: 0.022235983982682228\n",
+-      "epoch 39|810; total loss:0.009325392544269562\n",
+-      "last losse: 0.0029180683195590973\n",
+-      "epoch 39|945; total loss:0.009906663559377193\n",
+-      "last losse: 0.0037131421267986298\n",
+-      "epoch 39|1080; total loss:0.0094069242477417\n",
+-      "last losse: 0.0046547092497348785\n",
+-      "epoch 39|1215; total loss:0.013550340197980404\n",
+-      "last losse: 0.00424435269087553\n",
+-      "epoch 40|0; total loss:0.00032964610727503896\n",
+-      "last losse: 0.044502224773168564\n",
+-      "epoch 40|135; total loss:0.011149736121296883\n",
+-      "last losse: 0.0021096544805914164\n",
+-      "epoch 40|270; total loss:0.012077032588422298\n",
+-      "last losse: 0.004342569038271904\n",
+-      "epoch 40|405; total loss:0.011518504470586777\n",
+-      "last losse: 0.014407597482204437\n",
+-      "epoch 40|540; total loss:0.010296213440597057\n",
+-      "last losse: 0.0031803513411432505\n",
+-      "epoch 40|675; total loss:0.011304416693747044\n",
+-      "last losse: 0.00359796779230237\n",
+-      "epoch 40|810; total loss:0.010525960475206375\n",
+-      "last losse: 0.003120394889265299\n",
+-      "epoch 40|945; total loss:0.010114775970578194\n",
+-      "last losse: 0.013653826899826527\n",
+-      "epoch 40|1080; total loss:0.009563426487147808\n",
+-      "last losse: 0.013044748455286026\n",
+-      "epoch 40|1215; total loss:0.011236058548092842\n",
+-      "last losse: 0.001572504872456193\n",
+-      "epoch 41|0; total loss:1.5697127309977077e-05\n",
+-      "last losse: 0.00211911229416728\n",
+-      "epoch 41|135; total loss:0.010086464695632458\n",
+-      "last losse: 0.00977763719856739\n",
+-      "epoch 41|270; total loss:0.010602360591292381\n",
+-      "last losse: 0.00310542737133801\n",
+-      "epoch 41|405; total loss:0.009037107229232788\n",
+-      "last losse: 0.002958480501547456\n",
+-      "epoch 41|540; total loss:0.01070037204772234\n",
+-      "last losse: 0.02465754747390747\n",
+-      "epoch 41|675; total loss:0.012189661152660847\n",
+-      "last losse: 0.002068246714770794\n",
+-      "epoch 41|810; total loss:0.010778551921248436\n",
+-      "last losse: 0.004046743735671043\n",
+-      "epoch 41|945; total loss:0.00971174892038107\n",
+-      "last losse: 0.013652635738253593\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 41|1080; total loss:0.011173929087817669\n",
+-      "last losse: 0.012450936250388622\n",
+-      "epoch 41|1215; total loss:0.0108670424669981\n",
+-      "last losse: 0.006057389546185732\n",
+-      "epoch 42|0; total loss:1.6794781913631596e-05\n",
+-      "last losse: 0.0022672954946756363\n",
+-      "epoch 42|135; total loss:0.009139268659055233\n",
+-      "last losse: 0.0023889110889285803\n",
+-      "epoch 42|270; total loss:0.010439403355121613\n",
+-      "last losse: 0.007914911955595016\n",
+-      "epoch 42|405; total loss:0.011790508404374123\n",
+-      "last losse: 0.03432544320821762\n",
+-      "epoch 42|540; total loss:0.011070648208260536\n",
+-      "last losse: 0.0067786239087581635\n",
+-      "epoch 42|675; total loss:0.011014646850526333\n",
+-      "last losse: 0.0019272491335868835\n",
+-      "epoch 42|810; total loss:0.010202313773334026\n",
+-      "last losse: 0.006237366236746311\n",
+-      "epoch 42|945; total loss:0.011513846926391125\n",
+-      "last losse: 0.0023045153357088566\n",
+-      "epoch 42|1080; total loss:0.011612897738814354\n",
+-      "last losse: 0.0026853829622268677\n",
+-      "epoch 42|1215; total loss:0.009405811317265034\n",
+-      "last losse: 0.0017833053134381771\n",
+-      "epoch 43|0; total loss:6.85100894770585e-05\n",
+-      "last losse: 0.00924886204302311\n",
+-      "epoch 43|135; total loss:0.011172546073794365\n",
+-      "last losse: 0.001655325759202242\n",
+-      "epoch 43|270; total loss:0.011400162242352962\n",
+-      "last losse: 0.00331685203127563\n",
+-      "epoch 43|405; total loss:0.014074058271944523\n",
+-      "last losse: 0.0026241070590913296\n",
+-      "epoch 43|540; total loss:0.009068623185157776\n",
+-      "last losse: 0.005165754817426205\n",
+-      "epoch 43|675; total loss:0.010214605368673801\n",
+-      "last losse: 0.001436679856851697\n",
+-      "epoch 43|810; total loss:0.010568247176706791\n",
+-      "last losse: 0.0028462219052016735\n",
+-      "epoch 43|945; total loss:0.010005905292928219\n",
+-      "last losse: 0.0033387860748916864\n",
+-      "epoch 43|1080; total loss:0.011056692339479923\n",
+-      "last losse: 0.012329516001045704\n",
+-      "epoch 43|1215; total loss:0.010186794213950634\n",
+-      "last losse: 0.006372998468577862\n",
+-      "epoch 44|0; total loss:2.3548804165329784e-05\n",
+-      "last losse: 0.0031790887005627155\n",
+-      "epoch 44|135; total loss:0.009819352999329567\n",
+-      "last losse: 0.003960256464779377\n",
+-      "epoch 44|270; total loss:0.01022586040198803\n",
+-      "last losse: 0.003278251737356186\n",
+-      "epoch 44|405; total loss:0.01085073035210371\n",
+-      "last losse: 0.0048331269063055515\n",
+-      "epoch 44|540; total loss:0.010976138524711132\n",
+-      "last losse: 0.04503992944955826\n",
+-      "epoch 44|675; total loss:0.01044287160038948\n",
+-      "last losse: 0.0019420438911765814\n",
+-      "epoch 44|810; total loss:0.010805139318108559\n",
+-      "last losse: 0.019432492554187775\n",
+-      "epoch 44|945; total loss:0.00988607108592987\n",
+-      "last losse: 0.0025392272509634495\n",
+-      "epoch 44|1080; total loss:0.008983355015516281\n",
+-      "last losse: 0.010895919986069202\n",
+-      "epoch 44|1215; total loss:0.010758314281702042\n",
+-      "last losse: 0.01936846412718296\n",
+-      "epoch 45|0; total loss:1.7712782209855504e-05\n",
+-      "last losse: 0.0023912256583571434\n",
+-      "epoch 45|135; total loss:0.009943131357431412\n",
+-      "last losse: 0.03903939574956894\n",
+-      "epoch 45|270; total loss:0.009283949621021748\n",
+-      "last losse: 0.00443014781922102\n",
+-      "epoch 45|405; total loss:0.013071423396468163\n",
+-      "last losse: 0.0022646458819508553\n",
+-      "epoch 45|540; total loss:0.009162666276097298\n",
+-      "last losse: 0.031720563769340515\n",
+-      "epoch 45|675; total loss:0.011037549935281277\n",
+-      "last losse: 0.0031001935712993145\n",
+-      "epoch 45|810; total loss:0.010957146063446999\n",
+-      "last losse: 0.0027710599824786186\n",
+-      "epoch 45|945; total loss:0.010584020055830479\n",
+-      "last losse: 0.006888167001307011\n",
+-      "epoch 45|1080; total loss:0.008669475093483925\n",
+-      "last losse: 0.001210603630170226\n",
+-      "epoch 45|1215; total loss:0.010797743685543537\n",
+-      "last losse: 0.0027253306470811367\n",
+-      "epoch 46|0; total loss:2.1209132682997733e-05\n",
+-      "last losse: 0.0028632329776883125\n",
+-      "epoch 46|135; total loss:0.010385153815150261\n",
+-      "last losse: 0.02024400234222412\n",
+-      "epoch 46|270; total loss:0.009360515512526035\n",
+-      "last losse: 0.002250834833830595\n",
+-      "epoch 46|405; total loss:0.011357966810464859\n",
+-      "last losse: 0.05191550776362419\n",
+-      "epoch 46|540; total loss:0.013021036982536316\n",
+-      "last losse: 0.024655142799019814\n",
+-      "epoch 46|675; total loss:0.010499085299670696\n",
+-      "last losse: 0.026327352970838547\n",
+-      "epoch 46|810; total loss:0.008618154563009739\n",
+-      "last losse: 0.0017061769030988216\n",
+-      "epoch 46|945; total loss:0.012126308865845203\n",
+-      "last losse: 0.003158529056236148\n",
+-      "epoch 46|1080; total loss:0.0106975007802248\n",
+-      "last losse: 0.0034278170205652714\n",
+-      "epoch 46|1215; total loss:0.008616087026894093\n",
+-      "last losse: 0.010878878645598888\n",
+-      "epoch 47|0; total loss:1.4680872482131235e-05\n",
+-      "last losse: 0.001981917768716812\n",
+-      "epoch 47|135; total loss:0.009366322308778763\n",
+-      "last losse: 0.0034764213487505913\n",
+-      "epoch 47|270; total loss:0.01219299528747797\n",
+-      "last losse: 0.005561939440667629\n",
+-      "epoch 47|405; total loss:0.008737756870687008\n",
+-      "last losse: 0.026813635602593422\n",
+-      "epoch 47|540; total loss:0.010591275058686733\n",
+-      "last losse: 0.002026662928983569\n",
+-      "epoch 47|675; total loss:0.009938136674463749\n",
+-      "last losse: 0.0421106331050396\n",
+-      "epoch 47|810; total loss:0.010095818899571896\n",
+-      "last losse: 0.024806857109069824\n",
+-      "epoch 47|945; total loss:0.00909031555056572\n",
+-      "last losse: 0.0020577367395162582\n",
+-      "epoch 47|1080; total loss:0.013097026385366917\n",
+-      "last losse: 0.003927445039153099\n",
+-      "epoch 47|1215; total loss:0.01542856078594923\n",
+-      "last losse: 0.004320614505559206\n",
+-      "epoch 48|0; total loss:0.0003111555997747928\n",
+-      "last losse: 0.042006008327007294\n",
+-      "epoch 48|135; total loss:0.013859918341040611\n",
+-      "last losse: 0.009235968813300133\n",
+-      "epoch 48|270; total loss:0.009983665309846401\n",
+-      "last losse: 0.003257235512137413\n",
+-      "epoch 48|405; total loss:0.011009935289621353\n",
+-      "last losse: 0.042753733694553375\n",
+-      "epoch 48|540; total loss:0.009476645849645138\n",
+-      "last losse: 0.023863956332206726\n",
+-      "epoch 48|675; total loss:0.010326581075787544\n",
+-      "last losse: 0.0029509365558624268\n",
+-      "epoch 48|810; total loss:0.010090751573443413\n",
+-      "last losse: 0.003859611228108406\n",
+-      "epoch 48|945; total loss:0.011032101698219776\n",
+-      "last losse: 0.0022851317189633846\n",
+-      "epoch 48|1080; total loss:0.008430862799286842\n",
+-      "last losse: 0.005675147287547588\n",
+-      "epoch 48|1215; total loss:0.011192245408892632\n",
+-      "last losse: 0.0028807087801396847\n",
+-      "epoch 49|0; total loss:0.0001155520003521815\n",
+-      "last losse: 0.015599519945681095\n",
+-      "epoch 49|135; total loss:0.012207494117319584\n",
+-      "last losse: 0.038949158042669296\n",
+-      "epoch 49|270; total loss:0.010155071504414082\n",
+-      "last losse: 0.0035738942679017782\n",
+-      "epoch 49|405; total loss:0.010759071446955204\n",
+-      "last losse: 0.01616181991994381\n",
+-      "epoch 49|540; total loss:0.010051315650343895\n",
+-      "last losse: 0.015476299449801445\n",
+-      "epoch 49|675; total loss:0.009304729290306568\n",
+-      "last losse: 0.029034685343503952\n",
+-      "epoch 49|810; total loss:0.011033655144274235\n",
+-      "last losse: 0.00643322104588151\n",
+-      "epoch 49|945; total loss:0.01032070629298687\n",
+-      "last losse: 0.0012846229365095496\n",
+-      "epoch 49|1080; total loss:0.009569481946527958\n",
+-      "last losse: 0.008414621464908123\n",
+-      "epoch 49|1215; total loss:0.010075028985738754\n",
+-      "last losse: 0.002273226622492075\n",
+-      "epoch 50|0; total loss:2.4693552404642105e-05\n",
+-      "last losse: 0.003333629574626684\n",
+-      "epoch 50|135; total loss:0.009598582983016968\n",
+-      "last losse: 0.0033719332423061132\n",
+-      "epoch 50|270; total loss:0.009727651253342628\n",
+-      "last losse: 0.02625221014022827\n",
+-      "epoch 50|405; total loss:0.009518074803054333\n",
+-      "last losse: 0.007889511995017529\n",
+-      "epoch 50|540; total loss:0.012653820216655731\n",
+-      "last losse: 0.03025900200009346\n",
+-      "epoch 50|675; total loss:0.008997579105198383\n",
+-      "last losse: 0.04000203683972359\n",
+-      "epoch 50|810; total loss:0.008053799159824848\n",
+-      "last losse: 0.021746736019849777\n",
+-      "epoch 50|945; total loss:0.011650070548057556\n",
+-      "last losse: 0.007144770585000515\n",
+-      "epoch 50|1080; total loss:0.01053856872022152\n",
+-      "last losse: 0.0046835425309836864\n",
+-      "epoch 50|1215; total loss:0.010929901152849197\n",
+-      "last losse: 0.0011641872115433216\n",
+-      "epoch 51|0; total loss:7.523434760514647e-05\n",
+-      "last losse: 0.01015663705766201\n",
+-      "epoch 51|135; total loss:0.01072927750647068\n",
+-      "last losse: 0.020862530916929245\n",
+-      "epoch 51|270; total loss:0.0107343140989542\n",
+-      "last losse: 0.0020596857648342848\n",
+-      "epoch 51|405; total loss:0.011278163641691208\n",
+-      "last losse: 0.0017907555447891355\n",
+-      "epoch 51|540; total loss:0.009508001618087292\n",
+-      "last losse: 0.011956426315009594\n",
+-      "epoch 51|675; total loss:0.0089936638250947\n",
+-      "last losse: 0.03257499635219574\n",
+-      "epoch 51|810; total loss:0.010365284979343414\n",
+-      "last losse: 0.0016307455953210592\n",
+-      "epoch 51|945; total loss:0.009137802757322788\n",
+-      "last losse: 0.010246675461530685\n",
+-      "epoch 51|1080; total loss:0.009857624769210815\n",
+-      "last losse: 0.004427191335707903\n",
+-      "epoch 51|1215; total loss:0.010850575752556324\n",
+-      "last losse: 0.0016753546660766006\n",
+-      "epoch 52|0; total loss:8.867082215147093e-05\n",
+-      "last losse: 0.011970560997724533\n",
+-      "epoch 52|135; total loss:0.012173333205282688\n",
+-      "last losse: 0.00151028111577034\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 52|270; total loss:0.010525197722017765\n",
+-      "last losse: 0.014554503373801708\n",
+-      "epoch 52|405; total loss:0.0082348408177495\n",
+-      "last losse: 0.07047350704669952\n",
+-      "epoch 52|540; total loss:0.013404440134763718\n",
+-      "last losse: 0.04458548501133919\n",
+-      "epoch 52|675; total loss:0.008243716321885586\n",
+-      "last losse: 0.0010503161465749145\n",
+-      "epoch 52|810; total loss:0.009941965341567993\n",
+-      "last losse: 0.02352380007505417\n",
+-      "epoch 52|945; total loss:0.009393862448632717\n",
+-      "last losse: 0.0067879254929721355\n",
+-      "epoch 52|1080; total loss:0.010742155835032463\n",
+-      "last losse: 0.058480896055698395\n",
+-      "epoch 52|1215; total loss:0.010801139287650585\n",
+-      "last losse: 0.019542746245861053\n",
+-      "epoch 53|0; total loss:2.358615347475279e-05\n",
+-      "last losse: 0.0031841308809816837\n",
+-      "epoch 53|135; total loss:0.009920689277350903\n",
+-      "last losse: 0.002118478761985898\n",
+-      "epoch 53|270; total loss:0.010122695937752724\n",
+-      "last losse: 0.015722665935754776\n",
+-      "epoch 53|405; total loss:0.010807749815285206\n",
+-      "last losse: 0.002302149310708046\n",
+-      "epoch 53|540; total loss:0.009981082752346992\n",
+-      "last losse: 0.0019993530586361885\n",
+-      "epoch 53|675; total loss:0.00904105231165886\n",
+-      "last losse: 0.02107076346874237\n",
+-      "epoch 53|810; total loss:0.011432330124080181\n",
+-      "last losse: 0.005572141148149967\n",
+-      "epoch 53|945; total loss:0.009417971596121788\n",
+-      "last losse: 0.0036142785102128983\n",
+-      "epoch 53|1080; total loss:0.011437802575528622\n",
+-      "last losse: 0.027767930179834366\n",
+-      "epoch 53|1215; total loss:0.011044188402593136\n",
+-      "last losse: 0.003845987841486931\n",
+-      "epoch 54|0; total loss:7.070752326399088e-05\n",
+-      "last losse: 0.009545516222715378\n",
+-      "epoch 54|135; total loss:0.01097020786255598\n",
+-      "last losse: 0.0023652168456465006\n",
+-      "epoch 54|270; total loss:0.010856837034225464\n",
+-      "last losse: 0.001730860210955143\n",
+-      "epoch 54|405; total loss:0.010966522619128227\n",
+-      "last losse: 0.0019344895845279098\n",
+-      "epoch 54|540; total loss:0.009708914905786514\n",
+-      "last losse: 0.007649871055036783\n",
+-      "epoch 54|675; total loss:0.00833700131624937\n",
+-      "last losse: 0.0013037958415225148\n",
+-      "epoch 54|810; total loss:0.009621412493288517\n",
+-      "last losse: 0.013007192872464657\n",
+-      "epoch 54|945; total loss:0.011449665762484074\n",
+-      "last losse: 0.014420721679925919\n",
+-      "epoch 54|1080; total loss:0.011225002817809582\n",
+-      "last losse: 0.0006791226333007216\n",
+-      "epoch 54|1215; total loss:0.01035817340016365\n",
+-      "last losse: 0.005493844859302044\n",
+-      "epoch 55|0; total loss:1.3790417142445222e-05\n",
+-      "last losse: 0.0018617063760757446\n",
+-      "epoch 55|135; total loss:0.01027017179876566\n",
+-      "last losse: 0.005099345929920673\n",
+-      "epoch 55|270; total loss:0.010530196130275726\n",
+-      "last losse: 0.01266414299607277\n",
+-      "epoch 55|405; total loss:0.011621169745922089\n",
+-      "last losse: 0.0031217634677886963\n",
+-      "epoch 55|540; total loss:0.00813613086938858\n",
+-      "last losse: 0.0034849445801228285\n",
+-      "epoch 55|675; total loss:0.011005508713424206\n",
+-      "last losse: 0.021663855761289597\n",
+-      "epoch 55|810; total loss:0.011393807828426361\n",
+-      "last losse: 0.013911096379160881\n",
+-      "epoch 55|945; total loss:0.008835810236632824\n",
+-      "last losse: 0.003019025782123208\n",
+-      "epoch 55|1080; total loss:0.010085958056151867\n",
+-      "last losse: 0.0017907378496602178\n",
+-      "epoch 55|1215; total loss:0.009676019661128521\n",
+-      "last losse: 0.0031324115116149187\n",
+-      "epoch 56|0; total loss:4.618201273842715e-05\n",
+-      "last losse: 0.0062345718033611774\n",
+-      "epoch 56|135; total loss:0.010049756616353989\n",
+-      "last losse: 0.03846551105380058\n",
+-      "epoch 56|270; total loss:0.009955222718417645\n",
+-      "last losse: 0.0027919327840209007\n",
+-      "epoch 56|405; total loss:0.0097227543592453\n",
+-      "last losse: 0.014877070672810078\n",
+-      "epoch 56|540; total loss:0.009221493266522884\n",
+-      "last losse: 0.010080420412123203\n",
+-      "epoch 56|675; total loss:0.009771193377673626\n",
+-      "last losse: 0.008599160239100456\n",
+-      "epoch 56|810; total loss:0.010194200091063976\n",
+-      "last losse: 0.03201838582754135\n",
+-      "epoch 56|945; total loss:0.010347104631364346\n",
+-      "last losse: 0.0016296888934448361\n",
+-      "epoch 56|1080; total loss:0.011040705256164074\n",
+-      "last losse: 0.010111669078469276\n",
+-      "epoch 56|1215; total loss:0.012124864384531975\n",
+-      "last losse: 0.005782385356724262\n",
+-      "epoch 57|0; total loss:1.0473492693563458e-05\n",
+-      "last losse: 0.0014139215927571058\n",
+-      "epoch 57|135; total loss:0.010958168655633926\n",
+-      "last losse: 0.0017413015011698008\n",
+-      "epoch 57|270; total loss:0.012776344083249569\n",
+-      "last losse: 0.002967977896332741\n",
+-      "epoch 57|405; total loss:0.013476723805069923\n",
+-      "last losse: 0.002020716667175293\n",
+-      "epoch 57|540; total loss:0.011948159895837307\n",
+-      "last losse: 0.012989469803869724\n",
+-      "epoch 57|675; total loss:0.009826358407735825\n",
+-      "last losse: 0.001738647697493434\n",
+-      "epoch 57|810; total loss:0.008659176528453827\n",
+-      "last losse: 0.0021005927119404078\n",
+-      "epoch 57|945; total loss:0.01096752006560564\n",
+-      "last losse: 0.023422738537192345\n",
+-      "epoch 57|1080; total loss:0.009871434420347214\n",
+-      "last losse: 0.013007773086428642\n",
+-      "epoch 57|1215; total loss:0.010417668148875237\n",
+-      "last losse: 0.04695805907249451\n",
+-      "epoch 58|0; total loss:2.5998071578214876e-05\n",
+-      "last losse: 0.0035097396466881037\n",
+-      "epoch 58|135; total loss:0.009941508993506432\n",
+-      "last losse: 0.007039595860987902\n",
+-      "epoch 58|270; total loss:0.009379896335303783\n",
+-      "last losse: 0.025765027850866318\n",
+-      "epoch 58|405; total loss:0.011545812711119652\n",
+-      "last losse: 0.021294252946972847\n",
+-      "epoch 58|540; total loss:0.01141654048115015\n",
+-      "last losse: 0.002967279404401779\n",
+-      "epoch 58|675; total loss:0.0107786376029253\n",
+-      "last losse: 0.00295924860984087\n",
+-      "epoch 58|810; total loss:0.008517375215888023\n",
+-      "last losse: 0.0033235428854823112\n",
+-      "epoch 58|945; total loss:0.012126115150749683\n",
+-      "last losse: 0.0068953270092606544\n",
+-      "epoch 58|1080; total loss:0.010532614775002003\n",
+-      "last losse: 0.03775857388973236\n",
+-      "epoch 58|1215; total loss:0.010149901732802391\n",
+-      "last losse: 0.0008051649201661348\n",
+-      "epoch 59|0; total loss:1.9478844478726387e-05\n",
+-      "last losse: 0.0026296440046280622\n",
+-      "epoch 59|135; total loss:0.01078519131988287\n",
+-      "last losse: 0.01690564677119255\n",
+-      "epoch 59|270; total loss:0.011201071552932262\n",
+-      "last losse: 0.023391101509332657\n",
+-      "epoch 59|405; total loss:0.009494506753981113\n",
+-      "last losse: 0.014540506526827812\n",
+-      "epoch 59|540; total loss:0.008717267774045467\n",
+-      "last losse: 0.01300853956490755\n",
+-      "epoch 59|675; total loss:0.009972235187888145\n",
+-      "last losse: 0.02138904482126236\n",
+-      "epoch 59|810; total loss:0.011218123137950897\n",
+-      "last losse: 0.0029207421466708183\n",
+-      "epoch 59|945; total loss:0.010649498552083969\n",
+-      "last losse: 0.003345202188938856\n",
+-      "epoch 59|1080; total loss:0.010483501479029655\n",
+-      "last losse: 0.002342487219721079\n",
+-      "epoch 59|1215; total loss:0.009218922816216946\n",
+-      "last losse: 0.00911718886345625\n",
+-      "epoch 60|0; total loss:0.00016022437193896621\n",
+-      "last losse: 0.021630290895700455\n",
+-      "epoch 60|135; total loss:0.008962951600551605\n",
+-      "last losse: 0.018085476011037827\n",
+-      "epoch 60|270; total loss:0.011688846163451672\n",
+-      "last losse: 0.05764362961053848\n",
+-      "epoch 60|405; total loss:0.01073051430284977\n",
+-      "last losse: 0.0022333404049277306\n",
+-      "epoch 60|540; total loss:0.010300424881279469\n",
+-      "last losse: 0.021246900781989098\n",
+-      "epoch 60|675; total loss:0.010213778354227543\n",
+-      "last losse: 0.0031551991123706102\n",
+-      "epoch 60|810; total loss:0.00947771966457367\n",
+-      "last losse: 0.0049482956528663635\n",
+-      "epoch 60|945; total loss:0.01060857716947794\n",
+-      "last losse: 0.006869829725474119\n",
+-      "epoch 60|1080; total loss:0.010014371946454048\n",
+-      "last losse: 0.00690535269677639\n",
+-      "epoch 60|1215; total loss:0.010057151317596436\n",
+-      "last losse: 0.004438344389200211\n",
+-      "epoch 61|0; total loss:0.00010420236503705382\n",
+-      "last losse: 0.014067319221794605\n",
+-      "epoch 61|135; total loss:0.013041574507951736\n",
+-      "last losse: 0.005275129806250334\n",
+-      "epoch 61|270; total loss:0.01019118633121252\n",
+-      "last losse: 0.017550989985466003\n",
+-      "epoch 61|405; total loss:0.009470246732234955\n",
+-      "last losse: 0.00460021710023284\n",
+-      "epoch 61|540; total loss:0.011009540408849716\n",
+-      "last losse: 0.023233477026224136\n",
+-      "epoch 61|675; total loss:0.009657659567892551\n",
+-      "last losse: 0.0035483534447848797\n",
+-      "epoch 61|810; total loss:0.00922382902354002\n",
+-      "last losse: 0.02530665323138237\n",
+-      "epoch 61|945; total loss:0.012451369315385818\n",
+-      "last losse: 0.0014334686566144228\n",
+-      "epoch 61|1080; total loss:0.008467215113341808\n",
+-      "last losse: 0.0019581543747335672\n",
+-      "epoch 61|1215; total loss:0.009468317963182926\n",
+-      "last losse: 0.011686887592077255\n",
+-      "epoch 62|0; total loss:0.00014585423923563212\n",
+-      "last losse: 0.019690321758389473\n",
+-      "epoch 62|135; total loss:0.013039924204349518\n",
+-      "last losse: 0.019071165472269058\n",
+-      "epoch 62|270; total loss:0.01127549260854721\n",
+-      "last losse: 0.03228962793946266\n",
+-      "epoch 62|405; total loss:0.009273053146898746\n",
+-      "last losse: 0.0010466855019330978\n",
+-      "epoch 62|540; total loss:0.011649318970739841\n",
+-      "last losse: 0.003147633746266365\n",
+-      "epoch 62|675; total loss:0.009668109007179737\n",
+-      "last losse: 0.0037978645414114\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 62|810; total loss:0.00988373439759016\n",
+-      "last losse: 0.004194224718958139\n",
+-      "epoch 62|945; total loss:0.01128315832465887\n",
+-      "last losse: 0.001871013082563877\n",
+-      "epoch 62|1080; total loss:0.010669025592505932\n",
+-      "last losse: 0.015138416551053524\n",
+-      "epoch 62|1215; total loss:0.011558461003005505\n",
+-      "last losse: 0.004891896620392799\n",
+-      "epoch 63|0; total loss:2.7188418243895285e-05\n",
+-      "last losse: 0.0036704365629702806\n",
+-      "epoch 63|135; total loss:0.009776047430932522\n",
+-      "last losse: 0.014161715283989906\n",
+-      "epoch 63|270; total loss:0.01164809986948967\n",
+-      "last losse: 0.0025497470051050186\n",
+-      "epoch 63|405; total loss:0.008819243870675564\n",
+-      "last losse: 0.009257274679839611\n",
+-      "epoch 63|540; total loss:0.010788274928927422\n",
+-      "last losse: 0.003603761550039053\n",
+-      "epoch 63|675; total loss:0.009292636066675186\n",
+-      "last losse: 0.004443538840860128\n",
+-      "epoch 63|810; total loss:0.011785304173827171\n",
+-      "last losse: 0.034833185374736786\n",
+-      "epoch 63|945; total loss:0.01015280932188034\n",
+-      "last losse: 0.0022522322833538055\n",
+-      "epoch 63|1080; total loss:0.009996098466217518\n",
+-      "last losse: 0.01323745958507061\n",
+-      "epoch 63|1215; total loss:0.010251297615468502\n",
+-      "last losse: 0.001189171220175922\n",
+-      "epoch 64|0; total loss:6.603551446460187e-05\n",
+-      "last losse: 0.008914794772863388\n",
+-      "epoch 64|135; total loss:0.010512636974453926\n",
+-      "last losse: 0.02875959500670433\n",
+-      "epoch 64|270; total loss:0.009078028611838818\n",
+-      "last losse: 0.006825452204793692\n",
+-      "epoch 64|405; total loss:0.01152249425649643\n",
+-      "last losse: 0.03981409966945648\n",
+-      "epoch 64|540; total loss:0.010156039148569107\n",
+-      "last losse: 0.0035731703974306583\n",
+-      "epoch 64|675; total loss:0.008541022427380085\n",
+-      "last losse: 0.0019367706263437867\n",
+-      "epoch 64|810; total loss:0.011086389422416687\n",
+-      "last losse: 0.0021610006224364042\n",
+-      "epoch 64|945; total loss:0.011279791593551636\n",
+-      "last losse: 0.0025465786457061768\n",
+-      "epoch 64|1080; total loss:0.01081301923841238\n",
+-      "last losse: 0.04072807729244232\n",
+-      "epoch 64|1215; total loss:0.008930008858442307\n",
+-      "last losse: 0.00966422539204359\n",
+-      "epoch 65|0; total loss:2.8217538783792406e-05\n",
+-      "last losse: 0.003809367772191763\n",
+-      "epoch 65|135; total loss:0.009983510710299015\n",
+-      "last losse: 0.023444581776857376\n",
+-      "epoch 65|270; total loss:0.007023743353784084\n",
+-      "last losse: 0.0026308707892894745\n",
+-      "epoch 65|405; total loss:0.0092123718932271\n",
+-      "last losse: 0.002887614071369171\n",
+-      "epoch 65|540; total loss:0.009705898351967335\n",
+-      "last losse: 0.03596916049718857\n",
+-      "epoch 65|675; total loss:0.010722300969064236\n",
+-      "last losse: 0.005004333797842264\n",
+-      "epoch 65|810; total loss:0.009921366348862648\n",
+-      "last losse: 0.008156499825417995\n",
+-      "epoch 65|945; total loss:0.012956155464053154\n",
+-      "last losse: 0.014970781281590462\n",
+-      "epoch 65|1080; total loss:0.011725367978215218\n",
+-      "last losse: 0.0017139792907983065\n",
+-      "epoch 65|1215; total loss:0.011039373464882374\n",
+-      "last losse: 0.004240195266902447\n",
+-      "epoch 66|0; total loss:0.0002834142360370606\n",
+-      "last losse: 0.03826092183589935\n",
+-      "epoch 66|135; total loss:0.009869473055005074\n",
+-      "last losse: 0.0038947651628404856\n",
+-      "epoch 66|270; total loss:0.010550297796726227\n",
+-      "last losse: 0.03241661190986633\n",
+-      "epoch 66|405; total loss:0.008941627107560635\n",
+-      "last losse: 0.00549514451995492\n",
+-      "epoch 66|540; total loss:0.01060417853295803\n",
+-      "last losse: 0.002611160045489669\n",
+-      "epoch 66|675; total loss:0.011090096086263657\n",
+-      "last losse: 0.00990357343107462\n",
+-      "epoch 66|810; total loss:0.01140989176928997\n",
+-      "last losse: 0.0032376162707805634\n",
+-      "epoch 66|945; total loss:0.009576180949807167\n",
+-      "last losse: 0.021442942321300507\n",
+-      "epoch 66|1080; total loss:0.009499862790107727\n",
+-      "last losse: 0.002312038792297244\n",
+-      "epoch 66|1215; total loss:0.009891455061733723\n",
+-      "last losse: 0.0013417871668934822\n",
+-      "epoch 67|0; total loss:0.00021989211381878704\n",
+-      "last losse: 0.029685435816645622\n",
+-      "epoch 67|135; total loss:0.009422257542610168\n",
+-      "last losse: 0.0029005545657128096\n",
+-      "epoch 67|270; total loss:0.009435034357011318\n",
+-      "last losse: 0.0036509542260318995\n",
+-      "epoch 67|405; total loss:0.011270292103290558\n",
+-      "last losse: 0.032220784574747086\n",
+-      "epoch 67|540; total loss:0.012121912091970444\n",
+-      "last losse: 0.0028631649911403656\n",
+-      "epoch 67|675; total loss:0.01248665526509285\n",
+-      "last losse: 0.02286565490067005\n",
+-      "epoch 67|810; total loss:0.00989898294210434\n",
+-      "last losse: 0.002347602741792798\n",
+-      "epoch 67|945; total loss:0.008560743182897568\n",
+-      "last losse: 0.027956809848546982\n",
+-      "epoch 67|1080; total loss:0.010259054601192474\n",
+-      "last losse: 0.001993968617171049\n",
+-      "epoch 67|1215; total loss:0.01079815998673439\n",
+-      "last losse: 0.001707370043732226\n",
+-      "epoch 68|0; total loss:9.87288512988016e-06\n",
+-      "last losse: 0.001332839485257864\n",
+-      "epoch 68|135; total loss:0.009391835890710354\n",
+-      "last losse: 0.00810222141444683\n",
+-      "epoch 68|270; total loss:0.009695401415228844\n",
+-      "last losse: 0.0018599784234538674\n",
+-      "epoch 68|405; total loss:0.012185352854430676\n",
+-      "last losse: 0.0027434907387942076\n",
+-      "epoch 68|540; total loss:0.010367958806455135\n",
+-      "last losse: 0.0038293590769171715\n",
+-      "epoch 68|675; total loss:0.010256008245050907\n",
+-      "last losse: 0.044538769870996475\n",
+-      "epoch 68|810; total loss:0.009664632380008698\n",
+-      "last losse: 0.006478893104940653\n",
+-      "epoch 68|945; total loss:0.009410809725522995\n",
+-      "last losse: 0.0033576954156160355\n",
+-      "epoch 68|1080; total loss:0.011312426999211311\n",
+-      "last losse: 0.024461476132273674\n",
+-      "epoch 68|1215; total loss:0.010032214224338531\n",
+-      "last losse: 0.04368071258068085\n",
+-      "epoch 69|0; total loss:3.2747651857789606e-05\n",
+-      "last losse: 0.004420932848006487\n",
+-      "epoch 69|135; total loss:0.011512067168951035\n",
+-      "last losse: 0.0028003898914903402\n",
+-      "epoch 69|270; total loss:0.009661983698606491\n",
+-      "last losse: 0.002573017030954361\n",
+-      "epoch 69|405; total loss:0.009810925461351871\n",
+-      "last losse: 0.004767720587551594\n",
+-      "epoch 69|540; total loss:0.009123802185058594\n",
+-      "last losse: 0.006007367745041847\n",
+-      "epoch 69|675; total loss:0.010625340975821018\n",
+-      "last losse: 0.003212618175894022\n",
+-      "epoch 69|810; total loss:0.009920637123286724\n",
+-      "last losse: 0.023070931434631348\n",
+-      "epoch 69|945; total loss:0.011816694401204586\n",
+-      "last losse: 0.005384865216910839\n",
+-      "epoch 69|1080; total loss:0.012460723519325256\n",
+-      "last losse: 0.0038286601193249226\n",
+-      "epoch 69|1215; total loss:0.011181924492120743\n",
+-      "last losse: 0.014078030362725258\n",
+-      "epoch 70|0; total loss:0.000269027310423553\n",
+-      "last losse: 0.03631868585944176\n",
+-      "epoch 70|135; total loss:0.010225217789411545\n",
+-      "last losse: 0.012845724821090698\n",
+-      "epoch 70|270; total loss:0.011423660442233086\n",
+-      "last losse: 0.004415296949446201\n",
+-      "epoch 70|405; total loss:0.010343240574002266\n",
+-      "last losse: 0.0018898778362199664\n",
+-      "epoch 70|540; total loss:0.010999996215105057\n",
+-      "last losse: 0.0023482327815145254\n",
+-      "epoch 70|675; total loss:0.01059122197329998\n",
+-      "last losse: 0.02014140598475933\n",
+-      "epoch 70|810; total loss:0.009450010024011135\n",
+-      "last losse: 0.01808939501643181\n",
+-      "epoch 70|945; total loss:0.009388085454702377\n",
+-      "last losse: 0.001702942419797182\n",
+-      "epoch 70|1080; total loss:0.010414155200123787\n",
+-      "last losse: 0.005509041715413332\n",
+-      "epoch 70|1215; total loss:0.0102948397397995\n",
+-      "last losse: 0.0019665039144456387\n",
+-      "epoch 71|0; total loss:2.7201824195799418e-05\n",
+-      "last losse: 0.003672246355563402\n",
+-      "epoch 71|135; total loss:0.00963596347719431\n",
+-      "last losse: 0.01059428509324789\n",
+-      "epoch 71|270; total loss:0.011907347477972507\n",
+-      "last losse: 0.01092403195798397\n",
+-      "epoch 71|405; total loss:0.011947136372327805\n",
+-      "last losse: 0.02926795184612274\n",
+-      "epoch 71|540; total loss:0.011022690683603287\n",
+-      "last losse: 0.0024368574377149343\n",
+-      "epoch 71|675; total loss:0.010845853015780449\n",
+-      "last losse: 0.006374198477715254\n",
+-      "epoch 71|810; total loss:0.009047803469002247\n",
+-      "last losse: 0.002122668782249093\n",
+-      "epoch 71|945; total loss:0.007690806407481432\n",
+-      "last losse: 0.019709724932909012\n",
+-      "epoch 71|1080; total loss:0.010745272971689701\n",
+-      "last losse: 0.014101331122219563\n",
+-      "epoch 71|1215; total loss:0.009689009748399258\n",
+-      "last losse: 0.003847100306302309\n",
+-      "epoch 72|0; total loss:0.00012285217235330492\n",
+-      "last losse: 0.01658504270017147\n",
+-      "epoch 72|135; total loss:0.01067339163273573\n",
+-      "last losse: 0.002068770118057728\n",
+-      "epoch 72|270; total loss:0.01066922303289175\n",
+-      "last losse: 0.008187202736735344\n",
+-      "epoch 72|405; total loss:0.01018686592578888\n",
+-      "last losse: 0.0016657719388604164\n",
+-      "epoch 72|540; total loss:0.011475181207060814\n",
+-      "last losse: 0.002549059921875596\n",
+-      "epoch 72|675; total loss:0.00792957004159689\n",
+-      "last losse: 0.0012866274919360876\n",
+-      "epoch 72|810; total loss:0.01154733169823885\n",
+-      "last losse: 0.0026490739546716213\n",
+-      "epoch 72|945; total loss:0.012218466028571129\n",
+-      "last losse: 0.01774977147579193\n",
+-      "epoch 72|1080; total loss:0.009344327263534069\n",
+-      "last losse: 0.00833691842854023\n",
+-      "epoch 72|1215; total loss:0.008050319738686085\n",
+-      "last losse: 0.026217326521873474\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 73|0; total loss:9.71586414379999e-05\n",
+-      "last losse: 0.013116416521370411\n",
+-      "epoch 73|135; total loss:0.010220900177955627\n",
+-      "last losse: 0.015712548047304153\n",
+-      "epoch 73|270; total loss:0.009484292939305305\n",
+-      "last losse: 0.0021542664617300034\n",
+-      "epoch 73|405; total loss:0.012282065115869045\n",
+-      "last losse: 0.013003569096326828\n",
+-      "epoch 73|540; total loss:0.009307828731834888\n",
+-      "last losse: 0.0032064919359982014\n",
+-      "epoch 73|675; total loss:0.011112652719020844\n",
+-      "last losse: 0.001889804843813181\n",
+-      "epoch 73|810; total loss:0.011237329803407192\n",
+-      "last losse: 0.0012248620623722672\n",
+-      "epoch 73|945; total loss:0.007826057262718678\n",
+-      "last losse: 0.0028240811079740524\n",
+-      "epoch 73|1080; total loss:0.010019488632678986\n",
+-      "last losse: 0.002568528987467289\n",
+-      "epoch 73|1215; total loss:0.009505276568233967\n",
+-      "last losse: 0.036987707018852234\n",
+-      "epoch 74|0; total loss:0.00032359285978600383\n",
+-      "last losse: 0.04368503764271736\n",
+-      "epoch 74|135; total loss:0.009737118147313595\n",
+-      "last losse: 0.016393229365348816\n",
+-      "epoch 74|270; total loss:0.010547279380261898\n",
+-      "last losse: 0.014328708872199059\n",
+-      "epoch 74|405; total loss:0.008689215406775475\n",
+-      "last losse: 0.003491847077384591\n",
+-      "epoch 74|540; total loss:0.009922957047820091\n",
+-      "last losse: 0.0024426321033388376\n",
+-      "epoch 74|675; total loss:0.010744521394371986\n",
+-      "last losse: 0.001117071369662881\n",
+-      "epoch 74|810; total loss:0.010622285306453705\n",
+-      "last losse: 0.003007005900144577\n",
+-      "epoch 74|945; total loss:0.009870162233710289\n",
+-      "last losse: 0.012634454295039177\n",
+-      "epoch 74|1080; total loss:0.009033100679516792\n",
+-      "last losse: 0.03939213976264\n",
+-      "epoch 74|1215; total loss:0.012125092558562756\n",
+-      "last losse: 0.0015271131414920092\n",
+-      "epoch 75|0; total loss:0.00025450659450143576\n",
+-      "last losse: 0.03435838967561722\n",
+-      "epoch 75|135; total loss:0.010536515153944492\n",
+-      "last losse: 0.012272782623767853\n",
+-      "epoch 75|270; total loss:0.009342762641608715\n",
+-      "last losse: 0.0013259896077215672\n",
+-      "epoch 75|405; total loss:0.010528800077736378\n",
+-      "last losse: 0.00545777752995491\n",
+-      "epoch 75|540; total loss:0.013085253536701202\n",
+-      "last losse: 0.00498824380338192\n",
+-      "epoch 75|675; total loss:0.010870915837585926\n",
+-      "last losse: 0.007947531528770924\n",
+-      "epoch 75|810; total loss:0.01055119838565588\n",
+-      "last losse: 0.0016698193503543735\n",
+-      "epoch 75|945; total loss:0.010706724599003792\n",
+-      "last losse: 0.005800886079668999\n",
+-      "epoch 75|1080; total loss:0.009721563197672367\n",
+-      "last losse: 0.009055995382368565\n",
+-      "epoch 75|1215; total loss:0.011030688881874084\n",
+-      "last losse: 0.0576818510890007\n",
+-      "epoch 76|0; total loss:9.974931163014844e-05\n",
+-      "last losse: 0.013466157019138336\n",
+-      "epoch 76|135; total loss:0.010367936454713345\n",
+-      "last losse: 0.005481269210577011\n",
+-      "epoch 76|270; total loss:0.009966650046408176\n",
+-      "last losse: 0.002310029696673155\n",
+-      "epoch 76|405; total loss:0.010013420134782791\n",
+-      "last losse: 0.0017890514573082328\n",
+-      "epoch 76|540; total loss:0.009710703045129776\n",
+-      "last losse: 0.047303054481744766\n",
+-      "epoch 76|675; total loss:0.01035137940198183\n",
+-      "last losse: 0.01719747483730316\n",
+-      "epoch 76|810; total loss:0.009825007058680058\n",
+-      "last losse: 0.0015927264466881752\n",
+-      "epoch 76|945; total loss:0.009314035065472126\n",
+-      "last losse: 0.0018976654391735792\n",
+-      "epoch 76|1080; total loss:0.012942085973918438\n",
+-      "last losse: 0.0023715856950730085\n",
+-      "epoch 76|1215; total loss:0.010423542931675911\n",
+-      "last losse: 0.022294988855719566\n",
+-      "epoch 77|0; total loss:2.613987999211531e-05\n",
+-      "last losse: 0.0035288839135318995\n",
+-      "epoch 77|135; total loss:0.011233256198465824\n",
+-      "last losse: 0.020553534850478172\n",
+-      "epoch 77|270; total loss:0.00791945680975914\n",
+-      "last losse: 0.0022438711021095514\n",
+-      "epoch 77|405; total loss:0.01055395882576704\n",
+-      "last losse: 0.0014276921283453703\n",
+-      "epoch 77|540; total loss:0.010478395037353039\n",
+-      "last losse: 0.02466399408876896\n",
+-      "epoch 77|675; total loss:0.010260190814733505\n",
+-      "last losse: 0.01438705064356327\n",
+-      "epoch 77|810; total loss:0.010079201310873032\n",
+-      "last losse: 0.000923028914257884\n",
+-      "epoch 77|945; total loss:0.010711542330682278\n",
+-      "last losse: 0.002339491154998541\n",
+-      "epoch 77|1080; total loss:0.009887529537081718\n",
+-      "last losse: 0.02348298951983452\n",
+-      "epoch 77|1215; total loss:0.010587714612483978\n",
+-      "last losse: 0.003042269963771105\n",
+-      "epoch 78|0; total loss:0.0001173561904579401\n",
+-      "last losse: 0.015843085944652557\n",
+-      "epoch 78|135; total loss:0.010766721330583096\n",
+-      "last losse: 0.007646843791007996\n",
+-      "epoch 78|270; total loss:0.010560441762208939\n",
+-      "last losse: 0.0039046560414135456\n",
+-      "epoch 78|405; total loss:0.00959286279976368\n",
+-      "last losse: 0.003465038724243641\n",
+-      "epoch 78|540; total loss:0.011616358533501625\n",
+-      "last losse: 0.0015321471728384495\n",
+-      "epoch 78|675; total loss:0.010156122036278248\n",
+-      "last losse: 0.0404948815703392\n",
+-      "epoch 78|810; total loss:0.009942308068275452\n",
+-      "last losse: 0.014110365882515907\n",
+-      "epoch 78|945; total loss:0.01087124738842249\n",
+-      "last losse: 0.07093280553817749\n",
+-      "epoch 78|1080; total loss:0.009412512183189392\n",
+-      "last losse: 0.0019653106573969126\n",
+-      "epoch 78|1215; total loss:0.010332061909139156\n",
+-      "last losse: 0.003065249416977167\n",
+-      "epoch 79|0; total loss:2.109560045937542e-05\n",
+-      "last losse: 0.0028479062020778656\n",
+-      "epoch 79|135; total loss:0.011545573361217976\n",
+-      "last losse: 0.024509428068995476\n",
+-      "epoch 79|270; total loss:0.009521117433905602\n",
+-      "last losse: 0.003822022583335638\n",
+-      "epoch 79|405; total loss:0.010987374931573868\n",
+-      "last losse: 0.004571489058434963\n",
+-      "epoch 79|540; total loss:0.009987805038690567\n",
+-      "last losse: 0.0010548126883804798\n",
+-      "epoch 79|675; total loss:0.009001568891108036\n",
+-      "last losse: 0.00197196239605546\n",
+-      "epoch 79|810; total loss:0.01058359257876873\n",
+-      "last losse: 0.0033988701179623604\n",
+-      "epoch 79|945; total loss:0.010575120337307453\n",
+-      "last losse: 0.0026095255743712187\n",
+-      "epoch 79|1080; total loss:0.009731541387736797\n",
+-      "last losse: 0.003062611212953925\n",
+-      "epoch 79|1215; total loss:0.009221723303198814\n",
+-      "last losse: 0.00589190237224102\n",
+-      "epoch 80|0; total loss:9.551400580676273e-06\n",
+-      "last losse: 0.0012894391547888517\n",
+-      "epoch 80|135; total loss:0.01041959598660469\n",
+-      "last losse: 0.005603468976914883\n",
+-      "epoch 80|270; total loss:0.010722790844738483\n",
+-      "last losse: 0.0017225430347025394\n",
+-      "epoch 80|405; total loss:0.009750904515385628\n",
+-      "last losse: 0.007026288192719221\n",
+-      "epoch 80|540; total loss:0.010881912894546986\n",
+-      "last losse: 0.004893158096820116\n",
+-      "epoch 80|675; total loss:0.010949432849884033\n",
+-      "last losse: 0.037554509937763214\n",
+-      "epoch 80|810; total loss:0.010303077287971973\n",
+-      "last losse: 0.015045659616589546\n",
+-      "epoch 80|945; total loss:0.00871919933706522\n",
+-      "last losse: 0.002843659371137619\n",
+-      "epoch 80|1080; total loss:0.011472923681139946\n",
+-      "last losse: 0.03330077975988388\n",
+-      "epoch 80|1215; total loss:0.010036490857601166\n",
+-      "last losse: 0.0026412459556013346\n",
+-      "epoch 81|0; total loss:9.413014049641788e-05\n",
+-      "last losse: 0.012707569636404514\n",
+-      "epoch 81|135; total loss:0.010400094091892242\n",
+-      "last losse: 0.002190771047025919\n",
+-      "epoch 81|270; total loss:0.010135057382285595\n",
+-      "last losse: 0.026895195245742798\n",
+-      "epoch 81|405; total loss:0.010254944674670696\n",
+-      "last losse: 0.003109249984845519\n",
+-      "epoch 81|540; total loss:0.011543618515133858\n",
+-      "last losse: 0.03329957276582718\n",
+-      "epoch 81|675; total loss:0.010066081769764423\n",
+-      "last losse: 0.007638702169060707\n",
+-      "epoch 81|810; total loss:0.010962517000734806\n",
+-      "last losse: 0.024469725787639618\n",
+-      "epoch 81|945; total loss:0.010024563409388065\n",
+-      "last losse: 0.0027105030603706837\n",
+-      "epoch 81|1080; total loss:0.010930019430816174\n",
+-      "last losse: 0.0016557989874854684\n",
+-      "epoch 81|1215; total loss:0.00920853205025196\n",
+-      "last losse: 0.003520786762237549\n",
+-      "epoch 82|0; total loss:0.0002900752588175237\n",
+-      "last losse: 0.03916016221046448\n",
+-      "epoch 82|135; total loss:0.010447179898619652\n",
+-      "last losse: 0.012346304021775723\n",
+-      "epoch 82|270; total loss:0.008164112456142902\n",
+-      "last losse: 0.0006740638636983931\n",
+-      "epoch 82|405; total loss:0.010627294890582561\n",
+-      "last losse: 0.003865638514980674\n",
+-      "epoch 82|540; total loss:0.009577374905347824\n",
+-      "last losse: 0.001043223775923252\n",
+-      "epoch 82|675; total loss:0.010115065611898899\n",
+-      "last losse: 0.0022449661046266556\n",
+-      "epoch 82|810; total loss:0.013056276366114616\n",
+-      "last losse: 0.04246976971626282\n",
+-      "epoch 82|945; total loss:0.010465262457728386\n",
+-      "last losse: 0.003268272615969181\n",
+-      "epoch 82|1080; total loss:0.009845000691711903\n",
+-      "last losse: 0.002538846805691719\n",
+-      "epoch 82|1215; total loss:0.010269135236740112\n",
+-      "last losse: 0.0019704580772668123\n",
+-      "epoch 83|0; total loss:2.363082967349328e-05\n",
+-      "last losse: 0.0031901621259748936\n",
+-      "epoch 83|135; total loss:0.011188970878720284\n",
+-      "last losse: 0.0009089710656553507\n",
+-      "epoch 83|270; total loss:0.009976031258702278\n",
+-      "last losse: 0.01959148608148098\n",
+-      "epoch 83|405; total loss:0.009933051653206348\n",
+-      "last losse: 0.017323974519968033\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 83|540; total loss:0.010903294198215008\n",
+-      "last losse: 0.0015638621989637613\n",
+-      "epoch 83|675; total loss:0.010831683874130249\n",
+-      "last losse: 0.0022001105826348066\n",
+-      "epoch 83|810; total loss:0.00979847926646471\n",
+-      "last losse: 0.005185520276427269\n",
+-      "epoch 83|945; total loss:0.00933155883103609\n",
+-      "last losse: 0.022643178701400757\n",
+-      "epoch 83|1080; total loss:0.010377851314842701\n",
+-      "last losse: 0.0030041930731385946\n",
+-      "epoch 83|1215; total loss:0.010130821727216244\n",
+-      "last losse: 0.036935240030288696\n",
+-      "epoch 84|0; total loss:0.00021134247072041035\n",
+-      "last losse: 0.028531234711408615\n",
+-      "epoch 84|135; total loss:0.010813147760927677\n",
+-      "last losse: 0.009140335023403168\n",
+-      "epoch 84|270; total loss:0.008753561414778233\n",
+-      "last losse: 0.0017919500824064016\n",
+-      "epoch 84|405; total loss:0.010329673998057842\n",
+-      "last losse: 0.007599737029522657\n",
+-      "epoch 84|540; total loss:0.010234039276838303\n",
+-      "last losse: 0.04580197483301163\n",
+-      "epoch 84|675; total loss:0.01072253379970789\n",
+-      "last losse: 0.0044943587854504585\n",
+-      "epoch 84|810; total loss:0.009982540272176266\n",
+-      "last losse: 0.014410199597477913\n",
+-      "epoch 84|945; total loss:0.011039762757718563\n",
+-      "last losse: 0.005683070048689842\n",
+-      "epoch 84|1080; total loss:0.009615040384232998\n",
+-      "last losse: 0.002106971340253949\n",
+-      "epoch 84|1215; total loss:0.010796080343425274\n",
+-      "last losse: 0.002694913186132908\n",
+-      "epoch 85|0; total loss:0.00024511892115697265\n",
+-      "last losse: 0.03309105336666107\n",
+-      "epoch 85|135; total loss:0.010018502362072468\n",
+-      "last losse: 0.016400735825300217\n",
+-      "epoch 85|270; total loss:0.009623785503208637\n",
+-      "last losse: 0.007820733822882175\n",
+-      "epoch 85|405; total loss:0.00988782849162817\n",
+-      "last losse: 0.005087841767817736\n",
+-      "epoch 85|540; total loss:0.010657383129000664\n",
+-      "last losse: 0.001476535340771079\n",
+-      "epoch 85|675; total loss:0.010558899492025375\n",
+-      "last losse: 0.002106758998706937\n",
+-      "epoch 85|810; total loss:0.011068897321820259\n",
+-      "last losse: 0.00257382751442492\n",
+-      "epoch 85|945; total loss:0.011382817290723324\n",
+-      "last losse: 0.001327070640400052\n",
+-      "epoch 85|1080; total loss:0.009028050117194653\n",
+-      "last losse: 0.0023184828460216522\n",
+-      "epoch 85|1215; total loss:0.009567883796989918\n",
+-      "last losse: 0.030686134472489357\n",
+-      "epoch 86|0; total loss:3.067585566896014e-05\n",
+-      "last losse: 0.004141240380704403\n",
+-      "epoch 86|135; total loss:0.012474334798753262\n",
+-      "last losse: 0.0015266772825270891\n",
+-      "epoch 86|270; total loss:0.009338735602796078\n",
+-      "last losse: 0.004204814322292805\n",
+-      "epoch 86|405; total loss:0.009716425091028214\n",
+-      "last losse: 0.02807079814374447\n",
+-      "epoch 86|540; total loss:0.008875954896211624\n",
+-      "last losse: 0.02125716395676136\n",
+-      "epoch 86|675; total loss:0.009668784216046333\n",
+-      "last losse: 0.021883513778448105\n",
+-      "epoch 86|810; total loss:0.010392776690423489\n",
+-      "last losse: 0.020454110577702522\n",
+-      "epoch 86|945; total loss:0.009897490032017231\n",
+-      "last losse: 0.006211442407220602\n",
+-      "epoch 86|1080; total loss:0.011508622206747532\n",
+-      "last losse: 0.005216984078288078\n",
+-      "epoch 86|1215; total loss:0.010036097839474678\n",
+-      "last losse: 0.003371905069798231\n",
+-      "epoch 87|0; total loss:2.664728344825562e-05\n",
+-      "last losse: 0.003597383387386799\n",
+-      "epoch 87|135; total loss:0.010762474499642849\n",
+-      "last losse: 0.0014713713899254799\n",
+-      "epoch 87|270; total loss:0.011558329686522484\n",
+-      "last losse: 0.0028536110185086727\n",
+-      "epoch 87|405; total loss:0.00967783760279417\n",
+-      "last losse: 0.01321103610098362\n",
+-      "epoch 87|540; total loss:0.00990811176598072\n",
+-      "last losse: 0.008529176004230976\n",
+-      "epoch 87|675; total loss:0.009624702855944633\n",
+-      "last losse: 0.025041934102773666\n",
+-      "epoch 87|810; total loss:0.009700990281999111\n",
+-      "last losse: 0.02555098943412304\n",
+-      "epoch 87|945; total loss:0.012138032354414463\n",
+-      "last losse: 0.008083750493824482\n",
+-      "epoch 87|1080; total loss:0.008494489826261997\n",
+-      "last losse: 0.011592071503400803\n",
+-      "epoch 87|1215; total loss:0.010692724026739597\n",
+-      "last losse: 0.0026737649459391832\n",
+-      "epoch 88|0; total loss:2.2541060388903134e-05\n",
+-      "last losse: 0.0030430431943386793\n",
+-      "epoch 88|135; total loss:0.010105744004249573\n",
+-      "last losse: 0.002855174010619521\n",
+-      "epoch 88|270; total loss:0.011909605003893375\n",
+-      "last losse: 0.018382953479886055\n",
+-      "epoch 88|405; total loss:0.012021498754620552\n",
+-      "last losse: 0.002855018712580204\n",
+-      "epoch 88|540; total loss:0.010586515069007874\n",
+-      "last losse: 0.021198410540819168\n",
+-      "epoch 88|675; total loss:0.012773361057043076\n",
+-      "last losse: 0.03380909189581871\n",
+-      "epoch 88|810; total loss:0.009468300268054008\n",
+-      "last losse: 0.023040510714054108\n",
+-      "epoch 88|945; total loss:0.009531592018902302\n",
+-      "last losse: 0.025092713534832\n",
+-      "epoch 88|1080; total loss:0.010912802070379257\n",
+-      "last losse: 0.00331826857291162\n",
+-      "epoch 88|1215; total loss:0.011326777748763561\n",
+-      "last losse: 0.0034858467988669872\n",
+-      "epoch 89|0; total loss:1.293148125114385e-05\n",
+-      "last losse: 0.0017457499634474516\n",
+-      "epoch 89|135; total loss:0.011420155875384808\n",
+-      "last losse: 0.004026508424431086\n",
+-      "epoch 89|270; total loss:0.008971098810434341\n",
+-      "last losse: 0.013069641776382923\n",
+-      "epoch 89|405; total loss:0.010519377887248993\n",
+-      "last losse: 0.001990610733628273\n",
+-      "epoch 89|540; total loss:0.008829127065837383\n",
+-      "last losse: 0.0024674166925251484\n",
+-      "epoch 89|675; total loss:0.010522611439228058\n",
+-      "last losse: 0.0022546974942088127\n",
+-      "epoch 89|810; total loss:0.01138794794678688\n",
+-      "last losse: 0.0018470371142029762\n",
+-      "epoch 89|945; total loss:0.011983092874288559\n",
+-      "last losse: 0.0035130917094647884\n",
+-      "epoch 89|1080; total loss:0.008833096362650394\n",
+-      "last losse: 0.0026541464030742645\n",
+-      "epoch 89|1215; total loss:0.01097747404128313\n",
+-      "last losse: 0.003007447812706232\n",
+-      "epoch 90|0; total loss:0.0002758250047918409\n",
+-      "last losse: 0.037236377596855164\n",
+-      "epoch 90|135; total loss:0.01108352467417717\n",
+-      "last losse: 0.01808023452758789\n",
+-      "epoch 90|270; total loss:0.010076882317662239\n",
+-      "last losse: 0.025447463616728783\n",
+-      "epoch 90|405; total loss:0.012136941775679588\n",
+-      "last losse: 0.007880305871367455\n",
+-      "epoch 90|540; total loss:0.009396224282681942\n",
+-      "last losse: 0.018517114222049713\n",
+-      "epoch 90|675; total loss:0.010131930001080036\n",
+-      "last losse: 0.0031627845019102097\n",
+-      "epoch 90|810; total loss:0.010241844691336155\n",
+-      "last losse: 0.003069602884352207\n",
+-      "epoch 90|945; total loss:0.00890810415148735\n",
+-      "last losse: 0.0032080719247460365\n",
+-      "epoch 90|1080; total loss:0.01100805401802063\n",
+-      "last losse: 0.0018325046403333545\n",
+-      "epoch 90|1215; total loss:0.010342538356781006\n",
+-      "last losse: 0.0034029632806777954\n",
+-      "epoch 91|0; total loss:2.1856398234376684e-05\n",
+-      "last losse: 0.0029506138525903225\n",
+-      "epoch 91|135; total loss:0.009345261380076408\n",
+-      "last losse: 0.03839386999607086\n",
+-      "epoch 91|270; total loss:0.010046708397567272\n",
+-      "last losse: 0.016013380140066147\n",
+-      "epoch 91|405; total loss:0.01012356299906969\n",
+-      "last losse: 0.0032830978743731976\n",
+-      "epoch 91|540; total loss:0.009472522884607315\n",
+-      "last losse: 0.0030982312746345997\n",
+-      "epoch 91|675; total loss:0.009816393256187439\n",
+-      "last losse: 0.0018841420533135533\n",
+-      "epoch 91|810; total loss:0.01082916185259819\n",
+-      "last losse: 0.004340891260653734\n",
+-      "epoch 91|945; total loss:0.011096770875155926\n",
+-      "last losse: 0.002543362323194742\n",
+-      "epoch 91|1080; total loss:0.010446425527334213\n",
+-      "last losse: 0.002676796168088913\n",
+-      "epoch 91|1215; total loss:0.010584955103695393\n",
+-      "last losse: 0.001998662715777755\n",
+-      "epoch 92|0; total loss:1.5085885024745949e-05\n",
+-      "last losse: 0.0020365945529192686\n",
+-      "epoch 92|135; total loss:0.011884520761668682\n",
+-      "last losse: 0.013349499553442001\n",
+-      "epoch 92|270; total loss:0.009965264238417149\n",
+-      "last losse: 0.02412477508187294\n",
+-      "epoch 92|405; total loss:0.010158924385905266\n",
+-      "last losse: 0.02758624404668808\n",
+-      "epoch 92|540; total loss:0.00683384295552969\n",
+-      "last losse: 0.0007199997780844569\n",
+-      "epoch 92|675; total loss:0.010311875492334366\n",
+-      "last losse: 0.003531823866069317\n",
+-      "epoch 92|810; total loss:0.009910487569868565\n",
+-      "last losse: 0.003213027259334922\n",
+-      "epoch 92|945; total loss:0.01076233759522438\n",
+-      "last losse: 0.004129203036427498\n",
+-      "epoch 92|1080; total loss:0.010749226436018944\n",
+-      "last losse: 0.0015766611322760582\n",
+-      "epoch 92|1215; total loss:0.010953158140182495\n",
+-      "last losse: 0.003797098295763135\n",
+-      "epoch 93|0; total loss:1.378391152684344e-05\n",
+-      "last losse: 0.0018608281388878822\n",
+-      "epoch 93|135; total loss:0.011095614172518253\n",
+-      "last losse: 0.045338887721300125\n",
+-      "epoch 93|270; total loss:0.010655848309397697\n",
+-      "last losse: 0.01243515219539404\n",
+-      "epoch 93|405; total loss:0.010195780545473099\n",
+-      "last losse: 0.0009595793671905994\n",
+-      "epoch 93|540; total loss:0.01005469635128975\n",
+-      "last losse: 0.018140926957130432\n",
+-      "epoch 93|675; total loss:0.010042569600045681\n",
+-      "last losse: 0.014959719963371754\n",
+-      "epoch 93|810; total loss:0.008968482725322247\n",
+-      "last losse: 0.005924667697399855\n",
+-      "epoch 93|945; total loss:0.011776831932365894\n",
+-      "last losse: 0.002244272967800498\n"
+-     ]
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "epoch 93|1080; total loss:0.008688687346875668\n",
+-      "last losse: 0.003190769115462899\n",
+-      "epoch 93|1215; total loss:0.011000511236488819\n",
+-      "last losse: 0.003541317768394947\n",
+-      "epoch 94|0; total loss:0.0001066688637365587\n",
+-      "last losse: 0.014400296844542027\n",
+-      "epoch 94|135; total loss:0.009439574554562569\n",
+-      "last losse: 0.0023755053989589214\n",
+-      "epoch 94|270; total loss:0.010015199892222881\n",
+-      "last losse: 0.007355369161814451\n",
+-      "epoch 94|405; total loss:0.009951536543667316\n",
+-      "last losse: 0.033430226147174835\n",
+-      "epoch 94|540; total loss:0.011893007904291153\n",
+-      "last losse: 0.002688075415790081\n",
+-      "epoch 94|675; total loss:0.009307428263127804\n",
+-      "last losse: 0.008246534503996372\n",
+-      "epoch 94|810; total loss:0.010666650719940662\n",
+-      "last losse: 0.009324063546955585\n",
+-      "epoch 94|945; total loss:0.010077918879687786\n",
+-      "last losse: 0.060828305780887604\n",
+-      "epoch 94|1080; total loss:0.009839532896876335\n",
+-      "last losse: 0.0020035705529153347\n",
+-      "epoch 94|1215; total loss:0.009473217651247978\n",
+-      "last losse: 0.0029174908995628357\n",
+-      "epoch 95|0; total loss:1.758213147695642e-05\n",
+-      "last losse: 0.002373587805777788\n",
+-      "epoch 95|135; total loss:0.010728146880865097\n",
+-      "last losse: 0.028683094307780266\n",
+-      "epoch 95|270; total loss:0.008970765396952629\n",
+-      "last losse: 0.014798535965383053\n",
+-      "epoch 95|405; total loss:0.009793063625693321\n",
+-      "last losse: 0.014933981001377106\n",
+-      "epoch 95|540; total loss:0.009289814159274101\n",
+-      "last losse: 0.004053214099258184\n",
+-      "epoch 95|675; total loss:0.009822184219956398\n",
+-      "last losse: 0.02590431272983551\n",
+-      "epoch 95|810; total loss:0.011146328411996365\n",
+-      "last losse: 0.02137552946805954\n",
+-      "epoch 95|945; total loss:0.009983666241168976\n",
+-      "last losse: 0.01875479891896248\n",
+-      "epoch 95|1080; total loss:0.010562676005065441\n",
+-      "last losse: 0.012176340445876122\n",
+-      "epoch 95|1215; total loss:0.009287667460739613\n",
+-      "last losse: 0.021871287375688553\n",
+-      "epoch 96|0; total loss:1.4564125194738153e-05\n",
+-      "last losse: 0.0019661569967865944\n",
+-      "epoch 96|135; total loss:0.00943763367831707\n",
+-      "last losse: 0.042337868362665176\n",
+-      "epoch 96|270; total loss:0.010720817372202873\n",
+-      "last losse: 0.0031500677578151226\n",
+-      "epoch 96|405; total loss:0.009723369032144547\n",
+-      "last losse: 0.0026001236401498318\n",
+-      "epoch 96|540; total loss:0.008653305470943451\n",
+-      "last losse: 0.0038590924814343452\n",
+-      "epoch 96|675; total loss:0.01188057940453291\n",
+-      "last losse: 0.0034290060866624117\n",
+-      "epoch 96|810; total loss:0.009694887325167656\n",
+-      "last losse: 0.038312386721372604\n",
+-      "epoch 96|945; total loss:0.01197803020477295\n",
+-      "last losse: 0.00501851923763752\n",
+-      "epoch 96|1080; total loss:0.009521214291453362\n",
+-      "last losse: 0.0015020923456177115\n",
+-      "epoch 96|1215; total loss:0.01116385217756033\n",
+-      "last losse: 0.00466415798291564\n",
+-      "epoch 97|0; total loss:0.00013634545030072331\n",
+-      "last losse: 0.018406635150313377\n",
+-      "epoch 97|135; total loss:0.010742156766355038\n",
+-      "last losse: 0.016552096232771873\n",
+-      "epoch 97|270; total loss:0.011099126189947128\n",
+-      "last losse: 0.031578291207551956\n",
+-      "epoch 97|405; total loss:0.009992280974984169\n",
+-      "last losse: 0.03975009545683861\n",
+-      "epoch 97|540; total loss:0.007732213009148836\n",
+-      "last losse: 0.0016411454416811466\n",
+-      "epoch 97|675; total loss:0.010066419839859009\n",
+-      "last losse: 0.005410850513726473\n",
+-      "epoch 97|810; total loss:0.010875927284359932\n",
+-      "last losse: 0.0030077947303652763\n",
+-      "epoch 97|945; total loss:0.011950128711760044\n",
+-      "last losse: 0.0019463177304714918\n",
+-      "epoch 97|1080; total loss:0.011521655134856701\n",
+-      "last losse: 0.011069076135754585\n",
+-      "epoch 97|1215; total loss:0.011622699908912182\n",
+-      "last losse: 0.025639733299613\n",
+-      "epoch 98|0; total loss:9.24689884413965e-05\n",
+-      "last losse: 0.01248331367969513\n",
+-      "epoch 98|135; total loss:0.01059813518077135\n",
+-      "last losse: 0.006835682317614555\n",
+-      "epoch 98|270; total loss:0.010362925007939339\n",
+-      "last losse: 0.004106886684894562\n",
+-      "epoch 98|405; total loss:0.009027604013681412\n",
+-      "last losse: 0.0019611495081335306\n",
+-      "epoch 98|540; total loss:0.010051540099084377\n",
+-      "last losse: 0.007446003146469593\n",
+-      "epoch 98|675; total loss:0.0106118218973279\n",
+-      "last losse: 0.0026812541764229536\n",
+-      "epoch 98|810; total loss:0.01119718886911869\n",
+-      "last losse: 0.004326303489506245\n",
+-      "epoch 98|945; total loss:0.009380224160850048\n",
+-      "last losse: 0.0024901244323700666\n",
+-      "epoch 98|1080; total loss:0.010200761258602142\n",
+-      "last losse: 0.0020608471240848303\n",
+-      "epoch 98|1215; total loss:0.011701002717018127\n",
+-      "last losse: 0.0019593429751694202\n",
+-      "epoch 99|0; total loss:0.00017005440895445645\n",
+-      "last losse: 0.022957345470786095\n",
+-      "epoch 99|135; total loss:0.010837933979928493\n",
+-      "last losse: 0.017532099038362503\n",
+-      "epoch 99|270; total loss:0.0101151242852211\n",
+-      "last losse: 0.0010932441800832748\n",
+-      "epoch 99|405; total loss:0.011250480078160763\n",
+-      "last losse: 0.016680976375937462\n",
+-      "epoch 99|540; total loss:0.00889783538877964\n",
+-      "last losse: 0.0024723601527512074\n",
+-      "epoch 99|675; total loss:0.011016178876161575\n",
+-      "last losse: 0.0031446674838662148\n",
+-      "epoch 99|810; total loss:0.00947549007833004\n",
+-      "last losse: 0.008897161111235619\n",
+-      "epoch 99|945; total loss:0.011585216037929058\n",
+-      "last losse: 0.003930349834263325\n",
+-      "epoch 99|1080; total loss:0.010511082597076893\n",
+-      "last losse: 0.001806030166335404\n",
+-      "epoch 99|1215; total loss:0.00989711657166481\n",
+-      "last losse: 0.0028897777665406466\n",
+-      "Finished Training\n"
+-     ]
+-    }
+-   ],
+-   "source": [
+-    "trained_model = train_old(\n",
+-    "    train_dataset, \n",
+-    "    net=centernet, \n",
+-    "    criterion=criterion, \n",
+-    "    batch_size=train_dataloader_config['batch_size'], \n",
+-    "    epochs=training_config['epochs'],\n",
+-    "    lr=training_config['lr'], \n",
+-    "    device=device,\n",
+-    "    wandb_instance=wandb\n",
+-    ")"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 20,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "# train_losses, test_losses, trained_model = train_model(\n",
+-    "#    train_dataset=train_dataset, \n",
+-    "#    test_dataset=test_dataset, \n",
+-    "#    model=centernet, \n",
+-    "#    train_dataloader_kwargs=train_dataloader_config, \n",
+-    "#    test_dataloader_kwargs=test_dataloader_config, \n",
+-    "#    training_kwargs=training_config,\n",
+-    "#    criterion=criterion,\n",
+-    "#    device=device,\n",
+-    "#    wandb_instance=wandb,\n",
+-    "# )"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 21,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": [
+-    "# show_train_plots(train_losses, test_losses, 'Centernet')"
+-   ]
+-  },
+-  {
+-   "cell_type": "markdown",
+-   "metadata": {},
+-   "source": [
+-    "### Сохраним результаты и измерим точность\n",
+-    "Результаты - словарь с ключем DataItem.unique_key() и значением предсказанным quadrangle в относительных единицах."
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": 22,
+-   "metadata": {},
+-   "outputs": [
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "4250it [02:14, 31.53it/s]\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n"
+-     ]
+-    },
+-    {
+-     "name": "stderr",
+-     "output_type": "stream",
+-     "text": [
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n",
+-      "/home/avashchilko/abbyy9sem/course_cvdl/.venv/lib/python3.8/site-packages/shapely/set_operations.py:133: RuntimeWarning: invalid value encountered in intersection\n",
+-      "  return lib.intersection(a, b, **kwargs)\n"
+-     ]
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "Waiting for W&B process to finish... <strong style=\"color:green\">(success).</strong>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "<style>\n",
+-       "    table.wandb td:nth-child(1) { padding: 0 10px; text-align: left ; width: auto;} td:nth-child(2) {text-align: left ; width: 100%}\n",
+-       "    .wandb-row { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-start; width: 100% }\n",
+-       "    .wandb-col { display: flex; flex-direction: column; flex-basis: 100%; flex: 1; padding: 10px; }\n",
+-       "    </style>\n",
+-       "<div class=\"wandb-row\"><div class=\"wandb-col\"><h3>Run summary:</h3><br/><table class=\"wandb\"><tr><td>acc@80</td><td>0.80024</td></tr><tr><td>acc@95</td><td>0.12659</td></tr></table><br/></div></div>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       " View run <strong style=\"color:#cdcd00\">CenterNet 100 epochs with lr=0.001 old train</strong> at: <a href='https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9' target=\"_blank\">https://wandb.ai/vashchilkoav/ocr%20task%201/runs/xefv9ga9</a><br/>Synced 5 W&B file(s), 0 media file(s), 0 artifact file(s) and 2 other file(s)"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "data": {
+-      "text/html": [
+-       "Find logs at: <code>./wandb/run-20230326_175413-xefv9ga9/logs</code>"
+-      ],
+-      "text/plain": [
+-       "<IPython.core.display.HTML object>"
+-      ]
+-     },
+-     "metadata": {},
+-     "output_type": "display_data"
+-    },
+-    {
+-     "name": "stdout",
+-     "output_type": "stream",
+-     "text": [
+-      "0.12658823529411764\n"
+-     ]
+-    }
+-   ],
+-   "source": [
+-    "from course_ocr_t1.metrics import dump_results_dict, measure_crop_accuracy\n",
+-    "\n",
+-    "results_dict = {}\n",
+-    "\n",
+-    "trained_model.eval()\n",
+-    "\n",
+-    "with torch.no_grad():\n",
+-    "    for i, (x, _) in tqdm(enumerate(test_dataset)):\n",
+-    "        result = trained_model(x[None, ...].to(device))[0]\n",
+-    "        key = test_dataset.get_key(i)\n",
+-    "        results_dict[key] = result.cpu().tolist()\n",
+-    "\n",
+-    "dump_results_dict(results_dict, Path() / 'pred.json')\n",
+-    "\n",
+-    "acc_95 = measure_crop_accuracy(\n",
+-    "    Path() / 'pred.json',\n",
+-    "    Path() / 'gt.json'\n",
+-    ")\n",
+-    "\n",
+-    "acc_80 = measure_crop_accuracy(\n",
+-    "    Path() / 'pred.json',\n",
+-    "    Path() / 'gt.json',\n",
+-    "    iou_thr=0.8\n",
+-    ")\n",
+-    "\n",
+-    "wandb.run.summary['acc@95'] = acc_95\n",
+-    "wandb.run.summary['acc@80'] = acc_80\n",
+-    "\n",
+-    "torch.save(trained_model.state_dict(), Path() / 'model.pth')\n",
+-    "wandb.save(str(Path() / 'model.pth'))\n",
+-    "wandb.save(str(Path() / 'pred.json'))\n",
+-    "\n",
+-    "wandb.finish()\n",
+-    "\n",
+-    "print(acc_95)"
+-   ]
+-  },
+-  {
+-   "cell_type": "code",
+-   "execution_count": null,
+-   "metadata": {},
+-   "outputs": [],
+-   "source": []
+-  }
+- ],
+- "metadata": {
+-  "kernelspec": {
+-   "display_name": ".venv",
+-   "language": "python",
+-   "name": ".venv"
+-  },
+-  "language_info": {
+-   "codemirror_mode": {
+-    "name": "ipython",
+-    "version": 3
+-   },
+-   "file_extension": ".py",
+-   "mimetype": "text/x-python",
+-   "name": "python",
+-   "nbconvert_exporter": "python",
+-   "pygments_lexer": "ipython3",
+-   "version": "3.8.10"
+-  }
+- },
+- "nbformat": 4,
+- "nbformat_minor": 5
+-}
+diff --git a/task3/task3pack/utils/data.py b/task3/task3pack/utils/data.py
+index 19c489b..1acdade 100644
+--- a/task3/task3pack/utils/data.py
++++ b/task3/task3pack/utils/data.py
+@@ -4,90 +4,56 @@ from typing import Optional, Callable, List, Any, Tuple
+ import numpy as np
+ from PIL import Image
+ import cv2
++import pandas
++import os
+ 
+ import torch
+ from torchvision import transforms
+ from torchvision.datasets import VisionDataset
+ from torchvision.transforms import functional as F
+ 
+-
+-class HeatmapDataset(VisionDataset):
+-    def __init__(self, data_packs, split='train', transforms=None, realative=True, output_size=(128, 128)):
+-        self.data_packs = data_packs
+-        self.indices = []
+-        self.transforms = transforms
+-        self.output_size = output_size
+-        self.split = split
+-        self.relative = realative
+-
+-        for dp_idx, dp in enumerate(data_packs):
+-            for im_idx, im in enumerate(dp):
+-                if im.is_test_split() and split == 'test':
+-                    self.indices.append((dp_idx, im_idx))
+-                elif not im.is_test_split() and split == 'train':
+-                    self.indices.append((dp_idx, im_idx))
+-    
+-
+-    def __len__(self):
+-        return len(self.indices)
+-    
+-
+-    def __getitem__(self, index: int) -> Tuple[Any, Any]:
+-        dp_idx, im_idx = self.indices[index]
+-        image = np.array(self.data_packs[dp_idx][im_idx].image.convert('RGB'))
+-        target = torch.FloatTensor(self.data_packs[dp_idx][im_idx].quadrangle)
+-        
+-        if not self.relative:
+-            target *= self.output_size[0]
+-
+-        if self.transforms is not None:
+-            image = self.transforms(image)
+-
+-        return image, target
+-    
+-    def get_key(self, index: int) -> str:
+-        dp_idx, im_idx = self.indices[index]
+-        
+-        return self.data_packs[dp_idx][im_idx].unique_key
+-    
+-
+ class SegmentationDataset(VisionDataset):
+-    def __init__(self, data_packs, split='train', image_transforms=None, target_transforms=None):
+-        self.data_packs = data_packs
+-        self.indices = []
++    def __init__(self, images_path, csv_header, csv_encoding='utf-16', csv_path=None, image_transforms=None, target_transforms=None, is_test=False):
++        if not is_test:
++            self.markup = pandas.read_csv(csv_path, header=None, names=csv_header, encoding=csv_encoding)
+         self.image_transforms = image_transforms
+         self.target_transforms = target_transforms
+-        self.split = split
+-
+-        for dp_idx, dp in enumerate(data_packs):
+-            for im_idx, im in enumerate(dp):
+-                if im.is_test_split() and split == 'test':
+-                    self.indices.append((dp_idx, im_idx))
+-                elif not im.is_test_split() and split == 'train':
+-                    self.indices.append((dp_idx, im_idx))
++        self.images_path = images_path
++        self.is_test=is_test
+ 
+     def __len__(self):
+-        return len(self.indices)
++        if self.is_test:
++            return len(os.listdir(self.images_path))
++        else:
++            return len(self.markup)
+ 
+     
+     def __getitem__(self, index: int) -> Tuple[Any, Any]:
+-        dp_idx, im_idx = self.indices[index]
+-        image = np.array(self.data_packs[dp_idx][im_idx].image.convert('RGB'))
++        if self.is_test:
++            image_name = os.listdir(self.images_path)[index]
++            image = np.asarray(Image.open(self.images_path / image_name)).copy()
++            
++        else:
++            image_name = self.markup.loc[index, 'path']
++            coords = self.markup.loc[index, ['x1', 'y1', 'x2', 'y2', 'x3', 'y3', 'x4', 'y4']].to_numpy(dtype=int).reshape(4, 2)
+ 
+-        target = np.zeros(np.array(self.data_packs[dp_idx][im_idx].image).shape[:2])
+-        target = torch.FloatTensor(cv2.fillConvexPoly(target, np.array(self.data_packs[dp_idx][im_idx].gt_data['quad']), (1, )))
++            image = np.asarray(Image.open(self.images_path / image_name)).copy()
+ 
++            target = np.zeros(image.shape[:2])
++            target = torch.FloatTensor(cv2.fillConvexPoly(target, coords, (1, )))
++
++            
+         if self.image_transforms is not None:
+             image = self.image_transforms(image)
+-        if self.target_transforms is not None:
+-            target = self.target_transforms(target[None, ...])
++            
++            
++        if not self.is_test:
++            if self.target_transforms is not None:
++                target = self.target_transforms(target[None, ...])
+ 
+-        return image, target
+-    
+-    def get_key(self, index: int) -> str:
+-        dp_idx, im_idx = self.indices[index]
++            return image, target
+         
+-        return self.data_packs[dp_idx][im_idx].unique_key
++        return image, image_name
+     
+ 
+ def convert_segm_to_quadr(pred, image_size):
+diff --git a/task3/task3pack/utils/train.py b/task3/task3pack/utils/train.py
+index 2b7db6d..49f5b4c 100644
+--- a/task3/task3pack/utils/train.py
++++ b/task3/task3pack/utils/train.py
+@@ -24,247 +24,8 @@ def show_train_plots(train_losses, test_losses, title):
+     plt.ylabel('Loss')
+     plt.show()
+ 
+-def train(model, train_loader, optimizer, criterion, device):
+-    model.train()
+-    train_losses = []
+-
+-    for x, target in train_loader:
+-        x, target = x.to(device), target.to(device)
+-        prediction = model(x)
+-        loss = criterion(prediction, target)
+-
+-        optimizer.zero_grad()
+-        loss.backward()
+-        optimizer.step()
+-
+-        train_losses.append(loss.item())
+-
+-    return train_losses
+-
+-
+-def eval_loss(model, data_loader, criterion, device):
+-    model.eval()
+-    total_loss = 0
+-    with torch.no_grad():
+-        for x, target in data_loader:
+-            x, target = x.to(device), target.to(device)
+-            prediction = model(x)
+-            loss = criterion(prediction, target)
+-            total_loss += loss * x.shape[0]
+-        avg_loss = total_loss / len(data_loader.dataset)
+-    return avg_loss.item()
+-
+-
+-def train_epochs(model, train_loader, test_loader, train_args, criterion, device, wandb_instance=None):
+-    epochs, lr = train_args['epochs'], train_args['lr']
+-    optimizer = optim.Adam(model.parameters(), lr=lr)
+-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=train_args['step_size'], gamma=train_args['gamma'])
+-
+-    train_losses = []
+-    test_losses = [eval_loss(model, test_loader, criterion, device)]
+-
+-    print('initial loss {}'.format(test_losses[-1]))
+-    if wandb_instance is not None:
+-        wandb_instance.log({
+-            'val': {
+-                'loss': test_losses[-1],
+-            },
+-        }, step=0)
+-
+-    for epoch in range(epochs):
+-        print(f'epoch {epoch} started')
+-
+-        model.train()
+-        train_loss = train(model, train_loader, optimizer, criterion, device)        
+-        test_loss = eval_loss(model, test_loader, criterion, device)
+-
+-        scheduler.step()
+-
+-        train_losses.extend(train_loss)
+-        test_losses.append(test_loss)
+-        print('train loss: {}, test_loss: {}'.format(np.mean(train_loss), 
+-                                                     test_losses[-1]))
+-        if wandb_instance is not None:
+-            wandb_instance.log({
+-                'val': {
+-                    'loss': test_losses[-1],
+-                },
+-                'train': {
+-                    'loss': np.mean(train_loss),
+-                },
+-                'lr': scheduler.get_last_lr()[0],
+-            }, step=epoch+1)
+-
+-    return train_losses, test_losses
+-
+-
+-def train_model(train_dataset, test_dataset, model, criterion, device, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None):
+-    """
+-    train_data: A (n_train, H, W, 1) uint8 numpy array of binary images with values in {0, 1}
+-    test_data: A (n_test, H, W, 1) uint8 numpy array of binary images with values in {0, 1}
+-    model: nn.Model item, should contain function loss and accept
+-    Returns
+-    - a (# of training iterations,) numpy array of train_losses evaluated every minibatch
+-    - a (# of epochs + 1,) numpy array of test_losses evaluated once at initialization and after each epoch
+-    - trained model
+-    """
+-    model.to(device)
+-
+-    train_dataloader = DataLoader(train_dataset, **train_dataloader_kwargs)
+-    test_dataloader = DataLoader(test_dataset, **test_dataloader_kwargs)
+-
+-    train_loss, test_loss = train_epochs(model, train_dataloader, test_dataloader, training_kwargs, criterion, device, wandb_instance=wandb_instance)
+ 
+-    return np.array(train_loss), np.array(test_loss), model
+-    
+-
+-import sys
+-import warnings
+-
+-import numpy as np
+-
+-import torch
+-from torch import optim as optim
+-
+-from torchvision.transforms import functional as F
+-
+-DEFAULT_IMAGE_SIZE = (256, 256)
+-
+-
+-def train_old(dataset, net=None, criterion=None, batch_size=8, lr=3e-4, epochs=20, device=None, wandb_instance=None):
+-    if device is not None:
+-        net.to(device)
+-    optimizer = optim.Adam(net.parameters(), lr=lr)
+-
+-    trainloader = torch.utils.data.DataLoader(
+-        dataset, batch_size=batch_size, shuffle=True, num_workers=2
+-    )
+-    stats_step = (len(dataset) // 10 // batch_size) + 1
+-
+-    step = 0
+-
+-    for epoch in range(epochs):
+-        if epoch == 0:
+-            # на первой эпохе учимся с малым lr, чтобы не сломать pretrain
+-            optimizer.lr = lr / 1000
+-        else:
+-            # дальше постепенно уменьшаем
+-            optimizer.lr = lr / 2**epoch
+-
+-        running_loss = 0.0
+-        for i, data in enumerate(trainloader, 0):
+-            inputs, anno = data
+-            if device is not None:
+-                inputs = inputs.to(device)
+-                anno = anno.to(device)
+-            optimizer.zero_grad()
+-            outputs = net(inputs)
+-            loss = criterion(outputs, anno)
+-            if torch.isnan(loss).any():
+-                warnings.warn("nan loss! skip update")
+-                print(f"last loss: {loss}")
+-                break
+-            running_loss += loss
+-            if (i % stats_step == 0):
+-                print(f"epoch {epoch}|{i}; total loss:{running_loss / stats_step}")
+-                print(f"last losse: {loss}")
+-
+-                if wandb_instance is not None:
+-                    wandb_instance.log({
+-                        'train': {
+-                            'loss': running_loss / stats_step,
+-                        },
+-                        'lr': optimizer.param_groups[0]['lr']
+-                    }, step=step)
+-                step += 1
+-
+-                running_loss = 0.0
+-            loss.backward()
+-            optimizer.step()
+-    print('Finished Training')
+-    return net
+-
+-
+-def train_loop(model, criterion, train_dataloader, test_dataloader, device, wandb_instance, epochs=100, step_size=20, gamma=0.5):
+-    test_losses = []
+-    train_losses = []
+-    
+-    model.to(device)
+-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+-    
+-    model.eval()
+-    total_loss = 0.
+-    with torch.no_grad():
+-        for x, target in test_dataloader:
+-            x, target = x.to(device), target.to(device)
+-            pred = model(x)
+-            loss = criterion(pred, target)
+-            total_loss += loss.item() * x.shape[0]
+-       
+-        test_losses.append(total_loss / len(test_dataloader.dataset))
+-        print(f'Initital test loss: {total_loss / len(test_dataloader.dataset)}')
+-        if wandb_instance is not None:
+-            wandb_instance.log({
+-            'val': {
+-                'loss': total_loss / len(test_dataloader.dataset),
+-            },
+-        }, step=0)
+-
+-    for i in range(epochs):
+-        print(f'Epoch {i+1}:')
+-
+-        # learning
+-        print('training')
+-        model.train()
+-        total_train_loss = 0.
+-        for x, target in train_dataloader:
+-            x, target = x.to(device), target.to(device)
+-            optimizer.zero_grad()
+-            pred = model(x)
+-            loss = criterion(pred, target)
+-            total_train_loss += loss.item() * x.shape[0]
+-            loss.backward()
+-            optimizer.step()
+-            
+-        scheduler.step()
+-
+-        # evaluation
+-        print('evaluating')
+-        if (i + 1) % 10 == 0:
+-            model.eval()
+-            total_test_loss = 0.
+-            with torch.no_grad():
+-                for x, target in test_dataloader:
+-                    x, target = x.to(device), target.to(device)
+-                    pred = model(x)
+-                    loss = criterion(pred, target)
+-                    total_test_loss += loss.item() * x.shape[0]
+-            test_losses.append(total_test_loss / len(test_dataloader.dataset))
+-            print(f'test loss: {total_test_loss / len(test_dataloader.dataset)}')
+-            
+-            if wandb_instance is not None:
+-                wandb_instance.log({
+-                    'val': {
+-                        'loss': total_test_loss / len(test_dataloader.dataset),
+-                    },
+-                }, step=i+1)
+-            
+-        train_losses.append(total_train_loss / len(train_dataloader.dataset))
+-        print(f'train loss: {total_train_loss / len(train_dataloader.dataset)}')
+-               
+-        if wandb_instance is not None:
+-            wandb_instance.log({
+-                'train': {
+-                    'loss': total_train_loss / len(train_dataloader.dataset),
+-                },
+-                'lr': scheduler.get_last_lr()[0],
+-            }, step=i+1)
+-                           
+-    return np.array(train_losses), np.array(test_losses), model
+-
+-
+-def train_new(model, criterion, device, train_dataset, test_dataset, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None, eval_every=5):
++def train(model, criterion, device, train_dataset, test_dataset, train_dataloader_kwargs, test_dataloader_kwargs, training_kwargs, wandb_instance=None, eval_every=5):
+     test_losses = []
+     train_losses = []
+ 
+@@ -274,7 +35,7 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
+ 
+     train_dataloader = torch.utils.data.DataLoader(train_dataset, **train_dataloader_kwargs)
+     test_dataloader = torch.utils.data.DataLoader(test_dataset, **test_dataloader_kwargs)
+-
++    
+     # first eval
+     model.eval()
+     with torch.no_grad():
+@@ -299,27 +60,6 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
+     for epoch in range(training_kwargs['epochs']):
+         print(f'Epoch {epoch + 1}:')
+ 
+-        if (epoch + 1) % eval_every == 0:
+-        # eval
+-            model.eval()
+-            with torch.no_grad():
+-                loss_sum = 0.
+-                for input, target in test_dataloader:
+-                    input, target = input.to(device), target.to(device)
+-                    pred = model(input)
+-                    loss = criterion(pred, target)
+-                    loss_sum += loss.item()
+-
+-                val_loss = loss_sum / len(test_dataset)
+-                test_losses.append(val_loss)
+-                print(f'Val loss: {val_loss}')
+-                if wandb_instance is not None:
+-                    wandb_instance.log({
+-                        'val': {
+-                            'loss': val_loss,
+-                        },
+-                    }, step=epoch+1)
+-
+         # train
+         model.train()
+         loss_sum = 0.
+@@ -346,4 +86,25 @@ def train_new(model, criterion, device, train_dataset, test_dataset, train_datal
+ 
+         scheduler.step()
+ 
++        if (epoch + 1) % eval_every == 0:
++        # eval
++            model.eval()
++            with torch.no_grad():
++                loss_sum = 0.
++                for input, target in test_dataloader:
++                    input, target = input.to(device), target.to(device)
++                    pred = model(input)
++                    loss = criterion(pred, target)
++                    loss_sum += loss.item()
++
++                val_loss = loss_sum / len(test_dataset)
++                test_losses.append(val_loss)
++                print(f'Val loss: {val_loss}')
++                if wandb_instance is not None:
++                    wandb_instance.log({
++                        'val': {
++                            'loss': val_loss,
++                        },
++                    }, step=epoch+1)
++
+     return np.array(train_losses), np.array(test_losses), model
+\ No newline at end of file
+diff --git a/task3/wandb/debug-internal.log b/task3/wandb/debug-internal.log
+index 4b6875d..6bd8764 120000
+--- a/task3/wandb/debug-internal.log
++++ b/task3/wandb/debug-internal.log
+@@ -1 +1 @@
+-run-20230423_105910-1zn7xjyu/logs/debug-internal.log
+\ No newline at end of file
++run-20230424_121814-58n4thrg/logs/debug-internal.log
+\ No newline at end of file
+diff --git a/task3/wandb/debug.log b/task3/wandb/debug.log
+index 4b104f7..51340bf 120000
+--- a/task3/wandb/debug.log
++++ b/task3/wandb/debug.log
+@@ -1 +1 @@
+-run-20230423_105910-1zn7xjyu/logs/debug.log
+\ No newline at end of file
++run-20230424_121814-58n4thrg/logs/debug.log
+\ No newline at end of file
+diff --git a/task3/wandb/latest-run b/task3/wandb/latest-run
+index a86fa1e..c9c3c0c 120000
+--- a/task3/wandb/latest-run
++++ b/task3/wandb/latest-run
+@@ -1 +1 @@
+-run-20230423_105910-1zn7xjyu
+\ No newline at end of file
++run-20230424_121814-58n4thrg
+\ No newline at end of file
